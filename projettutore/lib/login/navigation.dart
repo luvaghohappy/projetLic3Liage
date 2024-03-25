@@ -15,8 +15,8 @@ class _NaviagtionPageState extends State<NaviagtionPage> {
   @override
   int currentindex = 0;
   List<Widget> screen =   [
-    const Homepage(),
-     const Mapspage(),
+     Homepage(email: '', profil: '',),
+    const Mapspage(),
     const NosPostes(),
     const HistoriqueAppel(),
    

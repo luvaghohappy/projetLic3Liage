@@ -1,5 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:http/http.dart' as http;
+import 'package:projettutore/login/menu.dart';
+import 'package:projettutore/mespages/historique.dart';
+import 'package:projettutore/mespages/maps.dart';
+import 'package:projettutore/mespages/poste.dart';
 
 class MonthData {
   final String month;
@@ -8,14 +14,65 @@ class MonthData {
   MonthData(this.month, this.value);
 }
 
-class Homepage extends StatefulWidget {
-  const Homepage({Key? key}) : super(key: key);
+class Homepage extends StatelessWidget {
+  final String email;
+  final String profil;
 
-  @override
-  State<Homepage> createState() => _HomepageState();
+  Homepage({Key? key, required this.email, required this.profil})
+      : super(key: key);
+
+  Future<void> logoutUser(String email, BuildContext context) async {
+  final url = 'http://192.168.43.148:81/projetSV/selectUser.php';
+  final response = await http.post(
+    Uri.parse(url),
+    body: {
+      'email': email,
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final responseData = json.decode(response.body);
+    if (responseData['success']) {
+      // Déconnexion réussie, revenir à l'écran de connexion
+      Navigator.pop(context);
+    } else {
+      // Gérer les erreurs de déconnexion
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Erreur'),
+            content: Text(responseData['message']),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  } else {
+    // Gérer les erreurs de connexion
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Erreur'),
+          content: const Text('Erreur lors de la déconnexion. Veuillez réessayer plus tard.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
-class _HomepageState extends State<Homepage> {
   List<charts.Series<MonthData, String>> _createSampleData() {
     return [
       charts.Series<MonthData, String>(
@@ -42,48 +99,93 @@ class _HomepageState extends State<Homepage> {
   ];
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        centerTitle: true,
+        title: const Text(
+          'OPERATEUR VIE SAUVE H24',
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: MemoryImage(base64Decode(profil)),
+              ),
+              const Padding(padding: EdgeInsets.only(left: 10)),
+              Text(
+                'Email: $email',
+                style: const TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ],
+          )
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              child: Center(
+                child: Column(
+                  children: [
+                    Image.network(
+                      'https://i0.wp.com/www.egem.tn/wp-content/uploads/2018/01/Intervention-rapide.png?fit=640%2C561&ssl=1',
+                      width: 300,
+                      height: 130,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ListTile(
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const Mapspage(),
+                ));
+              },
+              leading: const Icon(Icons.location_pin),
+              title: const Text('Maps'),
+            ),
+            ListTile(
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const NosPostes(),
+                ));
+              },
+              leading: const Icon(Icons.local_police_sharp),
+              title: const Text('Nos Postes'),
+            ),
+            ListTile(
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const HistoriqueAppel(),
+                ));
+              },
+              leading: const Icon(Icons.call),
+              title: const Text('Historiques Appels'),
+            ),
+            const Padding(padding: EdgeInsets.only(top: 250)),
+            ListTile(
+              onTap: () {
+                logoutUser(email, context);
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const Menu(),
+                ));
+              },
+              leading: const Icon(Icons.app_blocking_outlined),
+              title: const Text('Deconnexion'),
+            ),
+          ],
+        ),
+      ),
       backgroundColor: Colors.grey.shade100,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.only(top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 70,
-                    width: 130,
-                    child: Image.network(
-                        'https://i0.wp.com/www.egem.tn/wp-content/uploads/2018/01/Intervention-rapide.png?fit=640%2C561&ssl=1'),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 300),
-                  ),
-                  const Text(
-                    'VIE SAUVE',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 200),
-                  ),
-                  const CircleAvatar(
-                    radius: 20,
-                    backgroundImage: NetworkImage(
-                        'https://cdn-icons-png.flaticon.com/512/2966/2966486.png'),
-                  ),
-                  const Padding(padding: EdgeInsets.only(left: 10)),
-                  const Text('Operateur1'),
-                ],
-              ),
-            ),
-            const Padding(padding: EdgeInsets.only(top: 30)),
+            const Padding(padding: EdgeInsets.only(top: 60)),
             Padding(
               padding: const EdgeInsets.only(left: 300),
               child: Row(
@@ -146,7 +248,6 @@ class _HomepageState extends State<Homepage> {
             ),
             const Padding(padding: EdgeInsets.only(top: 50)),
             Container(
-              
               width: 900,
               height: 600,
               child: charts.BarChart(

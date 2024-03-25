@@ -1,6 +1,5 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-// header("Access-Control-Allow-Origin: http://localhost:54614");
 header("Access-Control-Allow-Headers: *");
 header("Access-Control-Allow-Methods: GET, POST");
 
@@ -10,6 +9,9 @@ include('conn.php');
 $email = htmlspecialchars($_POST["email"]);
 $password = htmlspecialchars($_POST["passwords"]);
 $role = htmlspecialchars($_POST["roles"]);
+
+// Hash du mot de passe
+$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
 // Vérification s'il y a une image envoyée
 if(isset($_FILES['profil'])) {
@@ -25,11 +27,17 @@ if(isset($_FILES['profil'])) {
     // Encodage des données binaires de l'image en base64
     $base64Image = base64_encode($imageData);
     
-    // Requête SQL pour insérer les données dans la table 'users'
-    $sql = "INSERT INTO users (email, passwords,roles, profil) VALUES ('$email', '$password','$role', '$base64Image')";
+    // Requête préparée SQL pour insérer les données dans la table 'users'
+    $sql = "INSERT INTO users (email, passwords, roles, profil) VALUES (?, ?, ?, ?)";
     
-    // Exécution de la requête SQL
-    if(mysqli_query($connect, $sql)) {
+    // Préparation de la requête
+    $stmt = mysqli_prepare($connect, $sql);
+    
+    // Liaison des paramètres
+    mysqli_stmt_bind_param($stmt, "ssss", $email, $hashedPassword, $role, $base64Image);
+    
+    // Exécution de la requête préparée
+    if(mysqli_stmt_execute($stmt)) {
         echo json_encode("success");
     } else {
         echo json_encode("failed");
