@@ -1,18 +1,9 @@
+  import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:google_maps_flutter/google_maps_flutter.dart' as google_maps_flutter;
+import 'package:google_maps_flutter_web/google_maps_flutter_web.dart' as google_maps_flutter_web;
 import 'package:http/http.dart' as http;
-import 'package:projettutore/login/menu.dart';
-import 'package:projettutore/mespages/historique.dart';
-import 'package:projettutore/mespages/maps.dart';
-import 'package:projettutore/mespages/poste.dart';
-
-class MonthData {
-  final String month;
-  final int value;
-
-  MonthData(this.month, this.value);
-}
 
 class Homepage extends StatelessWidget {
   final String email;
@@ -22,27 +13,43 @@ class Homepage extends StatelessWidget {
       : super(key: key);
 
   Future<void> logoutUser(String email, BuildContext context) async {
-  final url = 'http://192.168.43.148:81/projetSV/selectUser.php';
-  final response = await http.post(
-    Uri.parse(url),
-    body: {
-      'email': email,
-    },
-  );
+    final url = 'http://192.168.43.148:81/projetSV/selectUser.php';
+    final response = await http.post(
+      Uri.parse(url),
+      body: {
+        'email': email,
+      },
+    );
 
-  if (response.statusCode == 200) {
-    final responseData = json.decode(response.body);
-    if (responseData['success']) {
-      // Déconnexion réussie, revenir à l'écran de connexion
-      Navigator.pop(context);
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData['success']) {
+        Navigator.pop(context);
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Erreur'),
+              content: Text(responseData['message']),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     } else {
-      // Gérer les erreurs de déconnexion
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Erreur'),
-            content: Text(responseData['message']),
+            content: const Text(
+                'Erreur lors de la déconnexion. Veuillez réessayer plus tard.'),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -53,213 +60,44 @@ class Homepage extends StatelessWidget {
         },
       );
     }
-  } else {
-    // Gérer les erreurs de connexion
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Erreur'),
-          content: const Text('Erreur lors de la déconnexion. Veuillez réessayer plus tard.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
   }
-}
-
-  List<charts.Series<MonthData, String>> _createSampleData() {
-    return [
-      charts.Series<MonthData, String>(
-        id: 'Mois',
-        domainFn: (MonthData month, _) => month.month,
-        measureFn: (MonthData month, _) => month.value,
-        data: data,
-      ),
-    ];
-  }
-
-  final List<MonthData> data = [
-    MonthData('Jan', 100),
-    MonthData('Feb', 150),
-    MonthData('Mar', 200),
-    MonthData('Apr', 180),
-    MonthData('May', 220),
-    MonthData('Jun', 250),
-    MonthData('Jul', 300),
-    MonthData('Aug', 350),
-    MonthData('Sep', 400),
-    MonthData('Nov', 450),
-    MonthData('Dec', 500),
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        centerTitle: true,
-        title: const Text(
-          'OPERATEUR VIE SAUVE H24',
-          style: TextStyle(color: Colors.white),
-        ),
-        actions: [
+      backgroundColor: Colors.grey.shade100,
+      body: Column(
+        children: [
           Row(
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: MemoryImage(base64Decode(profil)),
-              ),
-              const Padding(padding: EdgeInsets.only(left: 10)),
-              Text(
-                'Email: $email',
-                style: const TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            ],
-          )
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              child: Center(
-                child: Column(
-                  children: [
-                    Image.network(
-                      'https://i0.wp.com/www.egem.tn/wp-content/uploads/2018/01/Intervention-rapide.png?fit=640%2C561&ssl=1',
-                      width: 300,
-                      height: 130,
-                    ),
-                  ],
+                backgroundImage: MemoryImage(
+                  base64Decode(profil),
                 ),
               ),
-            ),
-            ListTile(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const Mapspage(),
-                ));
-              },
-              leading: const Icon(Icons.location_pin),
-              title: const Text('Maps'),
-            ),
-            ListTile(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const NosPostes(),
-                ));
-              },
-              leading: const Icon(Icons.local_police_sharp),
-              title: const Text('Nos Postes'),
-            ),
-            ListTile(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const HistoriqueAppel(),
-                ));
-              },
-              leading: const Icon(Icons.call),
-              title: const Text('Historiques Appels'),
-            ),
-            const Padding(padding: EdgeInsets.only(top: 250)),
-            ListTile(
-              onTap: () {
-                logoutUser(email, context);
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const Menu(),
-                ));
-              },
-              leading: const Icon(Icons.app_blocking_outlined),
-              title: const Text('Deconnexion'),
-            ),
-          ],
-        ),
-      ),
-      backgroundColor: Colors.grey.shade100,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const Padding(padding: EdgeInsets.only(top: 60)),
-            Padding(
-              padding: const EdgeInsets.only(left: 300),
-              child: Row(
-                children: [
-                  Column(
-                    children: [
-                      const Text('Nombre Appels'),
-                      const Padding(
-                        padding: EdgeInsets.only(top: 20),
-                      ),
-                      Container(
-                        height: 170,
-                        width: 300,
-                        child: Card(
-                          color: Colors.white.withOpacity(
-                              0.1), // Opacité ajustée ici (par exemple)
-                          child: const Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Center(
-                              child: Text(
-                                '1234',
-                                style: TextStyle(fontSize: 20.0),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 50),
-                  ),
-                  Column(
-                    children: [
-                      const Text('Nombre Postes'),
-                      const Padding(
-                        padding: EdgeInsets.only(top: 20),
-                      ),
-                      Container(
-                        height: 170,
-                        width: 300,
-                        child: Card(
-                          color: Colors.white.withOpacity(
-                              0.1), // Opacité ajustée ici (par exemple)
-                          child: const Padding(
-                            padding: EdgeInsets.all(20.0),
-                            child: Center(
-                              child: Text(
-                                '1234',
-                                style: TextStyle(fontSize: 20.0),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              const Padding(
+                padding: EdgeInsets.only(left: 10),
               ),
-            ),
-            const Padding(padding: EdgeInsets.only(top: 50)),
-            Container(
-              width: 900,
-              height: 600,
-              child: charts.BarChart(
-                _createSampleData(),
-                animate: true,
+              Text(
+                'Operateur: $email',
+                style: const TextStyle(fontSize: 18, color: Colors.black),
               ),
+            ],
+          ),
+          Expanded(
+            child: google_maps_flutter.GoogleMap(
+              initialCameraPosition: const google_maps_flutter.CameraPosition(
+                target: google_maps_flutter.LatLng(45.521563, -122.677433),
+                zoom: 11.0,
+              ),
+              onMapCreated:
+                  (google_maps_flutter.GoogleMapController controller) {
+                // Contrôleur de la carte
+              },
             ),
-            const Padding(
-              padding: EdgeInsets.only(top: 30),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
