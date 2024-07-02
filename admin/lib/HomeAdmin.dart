@@ -6,7 +6,6 @@ import 'pagesAdmin/postes.dart';
 import 'pagesAdmin/user.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-
 class MonthData {
   final String month;
   final int value;
@@ -26,7 +25,7 @@ class HomaPage extends StatefulWidget {
 }
 
 class _HomaPageState extends State<HomaPage> {
- List<charts.Series<MonthData, String>> _createSampleData() {
+  List<charts.Series<MonthData, String>> _createSampleData() {
     return [
       charts.Series<MonthData, String>(
         id: 'Mois',
@@ -85,7 +84,7 @@ class _HomaPageState extends State<HomaPage> {
                 child: Column(
                   children: [
                     Image.asset(
-                      'assets/viesauve.webp',
+                      'assets/viesauve.png',
                       width: 300,
                       height: 130,
                     ),
@@ -102,18 +101,18 @@ class _HomaPageState extends State<HomaPage> {
               leading: const Icon(Icons.support_agent),
               title: const Text('Operateurs'),
             ),
-             ListTile(
+            ListTile(
               onTap: () {
-                 Navigator.of(context).push(MaterialPageRoute(
+                Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const Postes(),
                 ));
               },
               leading: const Icon(Icons.local_police_sharp),
               title: const Text('Postes'),
             ),
-             ListTile(
+            ListTile(
               onTap: () {
-                 Navigator.of(context).push(MaterialPageRoute(
+                Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const Historique(),
                 ));
               },
@@ -138,82 +137,80 @@ class _HomaPageState extends State<HomaPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-              const Padding(padding: EdgeInsets.only(top: 60)),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 300),
-                      child: Row(
-                        children: [
-                          Column(
-                            children: [
-                              const Text('Nombre Appels'),
-                              const Padding(
-                                padding: EdgeInsets.only(top: 20),
-                              ),
-                              Container(
-                                height: 170,
-                                width: 300,
-                                child: Card(
-                                  color: Colors.white.withOpacity(0.1),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(20.0),
-                                    child: Center(
-                                      child: Text(
-                                        '1234',
-                                        style: TextStyle(fontSize: 20.0),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 50),
-                          ),
-                          Column(
-                            children: [
-                              const Text('Nombre Postes'),
-                              const Padding(
-                                padding: EdgeInsets.only(top: 20),
-                              ),
-                              Container(
-                                height: 170,
-                                width: 300,
-                                child: Card(
-                                  color: Colors.white.withOpacity(0.1),
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(20.0),
-                                    child: Center(
-                                      child: Text(
-                                        '1234',
-                                        style: TextStyle(fontSize: 20.0),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+            const Padding(padding: EdgeInsets.only(top: 60)),
+            Padding(
+              padding: const EdgeInsets.only(left: 300),
+              child: Row(
+                children: [
+                  Column(
+                    children: [
+                      const Text('Nombre Appels'),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 20),
                       ),
-                    ),
-                    const Padding(padding: EdgeInsets.only(top: 50)),
-                    Container(
-                      width: 900,
-                      height: 600,
-                      child: charts.BarChart(
-                        _createSampleData(),
-                        animate: true,
+                      Container(
+                        height: 170,
+                        width: 300,
+                        child: Card(
+                          color: Colors.white.withOpacity(0.1),
+                          child: const Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Center(
+                              child: Text(
+                                '1234',
+                                style: TextStyle(fontSize: 20.0),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 30),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 50),
+                  ),
+                  Column(
+                    children: [
+                      const Text('Nombre Postes'),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 20),
+                      ),
+                      Container(
+                        height: 170,
+                        width: 300,
+                        child: Card(
+                          color: Colors.white.withOpacity(0.1),
+                          child: const Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Center(
+                              child: Text(
+                                '1234',
+                                style: TextStyle(fontSize: 20.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const Padding(padding: EdgeInsets.only(top: 50)),
+            Container(
+              width: 900,
+              height: 600,
+              child: charts.BarChart(
+                _createSampleData(),
+                animate: true,
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 30),
+            ),
+          ],
+        ),
       ),
-            );
-          
-     
+    );
   }
 }

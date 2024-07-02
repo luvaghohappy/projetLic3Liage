@@ -25,7 +25,7 @@ class _MyloginState extends State<Mylogin> {
   TextEditingController passwordController = new TextEditingController();
 
   Future<void> loginUser() async {
-    final url = 'http://192.168.43.148:81/projetSV/selectAdmin.php';
+    final url = 'http://localhost:81/projetSV/selectAdmin.php';
     final response = await http.post(
       Uri.parse(url),
       body: {

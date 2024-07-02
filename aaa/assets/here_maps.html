@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Here Maps Example</title>
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+    <style>
+        html, body, #mapContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+    </style>
+    <script>
+        function initMap() {
+            var platform = new H.service.Platform({
+                'apikey': '6nIGuVmqqMwOppHrpBSBf6U_muWT0r2bNBbONkEBilM'
+            });
+            var defaultLayers = platform.createDefaultLayers();
+            var map = new H.Map(
+                document.getElementById('mapContainer'),
+                defaultLayers.vector.normal.map,
+                {
+                    zoom: 10,
+                    center: { lat: 52.5, lng: 13.4 }
+                }
+            );
+            var mapEvents = new H.mapevents.MapEvents(map);
+            var behavior = new H.mapevents.Behavior(mapEvents);
+            var ui = H.ui.UI.createDefault(map, defaultLayers);
+
+            var fragment = window.location.hash;
+            if (fragment) {
+                console.log('Fragment:', fragment);
+            }
+        }
+
+        window.addEventListener('hashchange', function() {
+            console.log('Hash changed:', window.location.hash);
+            initMap();
+        });
+    </script>
+</head>
+<body onload="initMap()">
+    <div id="mapContainer"></div>
+</body>
+</html>

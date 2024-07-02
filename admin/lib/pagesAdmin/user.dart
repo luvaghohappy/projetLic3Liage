@@ -13,6 +13,8 @@ class Users2 extends StatefulWidget {
 }
 
 class _Users2State extends State<Users2> {
+  TextEditingController txtnom = TextEditingController();
+  TextEditingController txtpostnom = TextEditingController();
   TextEditingController txtemail = TextEditingController();
   TextEditingController txtpassword = TextEditingController();
   TextEditingController txtrole = TextEditingController();
@@ -45,7 +47,8 @@ class _Users2State extends State<Users2> {
           'POST',
           Uri.parse("http://192.168.43.148:81/projetSV/insertuser.php"),
         );
-
+        request.fields['nom'] = txtnom.text;
+        request.fields['postnom'] = txtpostnom.text;
         request.fields['email'] = txtemail.text;
         request.fields['passwords'] = txtpassword.text;
         request.fields['roles'] = txtrole.text;
@@ -61,6 +64,8 @@ class _Users2State extends State<Users2> {
         var response = await request.send();
 
         if (response.statusCode == 200) {
+          txtnom.clear();
+          txtpostnom.clear();
           txtemail.clear();
           txtpassword.clear();
           txtrole.clear();
@@ -98,15 +103,51 @@ class _Users2State extends State<Users2> {
           Padding(
             padding: const EdgeInsets.only(left: 250),
             child: Container(
-              height: 320,
-              width: 600,
+              height: 450,
+              width: 700,
               child: Card(
                 color: Colors.blueGrey, // Opacité ajustée ici (par exemple)
                 child: Center(
                   child: Column(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(13.0),
+                        padding: const EdgeInsets.all(10.0),
+                        child: TextField(
+                          controller: txtnom,
+                          cursorColor: Colors.black,
+                          decoration: InputDecoration(
+                            enabledBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade400),
+                            ),
+                            labelText: 'Nom',
+                            labelStyle: const TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: TextField(
+                          controller: txtpostnom,
+                          cursorColor: Colors.black,
+                          decoration: InputDecoration(
+                            enabledBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.white),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey.shade400),
+                            ),
+                            labelText: 'Postnom',
+                            labelStyle: const TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
                         child: TextField(
                           controller: txtemail,
                           cursorColor: Colors.black,
