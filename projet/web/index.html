@@ -1,78 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base href="$FLUTTER_BASE_HREF">
-
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
-
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="aaa">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>projet</title>
-  <link rel="manifest" href="manifest.json">
-
-  <script>
-    // The value below is injected by flutter build, do not touch.
-    var serviceWorkerVersion = null;
-  </script>
-  <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter.js" defer></script>
-  <!-- HERE Maps API scripts -->
+  <title>Flutter Web App</title>
+  <link rel="preload" href="https://js.api.here.com/v3/3.1/styles/fonts/FiraGO-Map.woff" as="font" type="font/woff" crossorigin="anonymous">
+  <link rel="preload" href="https://js.api.here.com/v3/3.1/styles/fonts/FiraGO-Italic.woff" as="font" type="font/woff" crossorigin="anonymous">
+  <style>
+    #mapContainer {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
   <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
   <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
   <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
   <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
-</head>
-<body>
-  <div id="mapContainer" style="width: 100%; height: 100vh;"></div>
+  <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css"/>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var apiKey = '6nIGuVmqqMwOppHrpBSBf6U_muWT0r2bNBbONkEBilM';
-      var initialLat = 52.5200;
-      var initialLng = 13.4050;
-      initializeHereMap(apiKey, initialLat, initialLng);
-    });
-
-    function initializeHereMap(apiKey, lat, lng) {
+    window.onload = function () {
       var platform = new H.service.Platform({
-        'apikey': apiKey
+        'apikey': '6nIGuVmqqMwOppHrpBSBf6U_muWT0r2bNBbONkEBilM'
       });
 
-      var defaultLayers = platform.createDefaultLayers();
+      var maptypes = platform.createDefaultLayers();
 
       var map = new H.Map(
         document.getElementById('mapContainer'),
-        defaultLayers.vector.normal.map,
+        maptypes.vector.normal.map,
         {
           zoom: 10,
-          center: { lat: lat, lng: lng }
+          center: { lng: 13.4, lat: 52.51 }
         }
       );
 
-      var ui = H.ui.UI.createDefault(map, defaultLayers);
-    }
-
-    window.addEventListener('load', function(ev) {
-      // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            appRunner.runApp();
-          });
-        }
-      });
-    });
+      var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+      var ui = H.ui.UI.createDefault(map, maptypes);
+    };
   </script>
+</head>
+<body>
+  <div id="mapContainer"></div>
+  <script src="main.dart.js" type="application/javascript"></script>
 </body>
 </html>

@@ -38,6 +38,11 @@ dependencies:
   latlong2: ^0.8.2
   http: 
   webview_flutter: ^4.2.0
+  webview_flutter_android: ^3.16.4
+  webview_flutter_wkwebview: ^3.13.1
+  webview_flutter_web: ^0.2.2+4
+  flutter_webview_plugin: ^0.4.0
+  flutter_inappwebview: ^6.0.0
 
 dev_dependencies:
   flutter_test:
