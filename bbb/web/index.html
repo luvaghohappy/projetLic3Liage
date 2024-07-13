@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Flutter Web App</title>
+  <link rel="preload" href="https://js.api.here.com/v3/3.1/styles/fonts/FiraGO-Map.woff" as="font" type="font/woff" crossorigin="anonymous">
+  <link rel="preload" href="https://js.api.here.com/v3/3.1/styles/fonts/FiraGO-Italic.woff" as="font" type="font/woff" crossorigin="anonymous">
+  <style>
+    #mapContainer {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+    #searchBar {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    #searchInput {
+      width: 300px;
+      padding: 5px;
+    }
+    #searchButton {
+      padding: 5px;
+    }
+    #results {
+      position: absolute;
+      top: 50px;
+      right: 10px;
+      background: white;
+      z-index: 1000;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+  </style>
+  <script src="https://js.api.here.com/v7/mapsjs.bundle.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css"/>
+  <script>
+    var map;
+
+    function initMap() {
+      var platform = new H.service.Platform({
+        'apikey': '6nIGuVmqqMwOppHrpBSBf6U_muWT0r2bNBbONkEBilM',
+        'lang': 'fr-FR'
+      });
+
+      var defaultLayers = platform.createDefaultLayers();
+      map = new H.Map(
+        document.getElementById('mapContainer'),
+        defaultLayers.vector.normal.map,
+        {
+          zoom: 6,
+          center: { lat: -2.87, lng: 23.65 }
+        }
+      );
+
+      var mapEvents = new H.mapevents.MapEvents(map);
+      var behavior = new H.mapevents.Behavior(mapEvents);
+      var ui = H.ui.UI.createDefault(map, defaultLayers);
+
+      document.getElementById('searchButton').onclick = function() {
+        var query = document.getElementById('searchInput').value;
+        searchLocation(platform, query, map);
+      };
+    }
+
+    function searchLocation(platform, query, map) {
+      var geocodingParams = {
+        q: query,
+        in: 'countryCode:COD', // Limiter la recherche à la RDC
+        // maxresults: 10,
+      };
+
+      var geocoder = platform.getSearchService();
+      geocoder.geocode(geocodingParams, (result) => {
+        if (result.items.length > 0) {
+          var resultsHtml = '<ul>';
+          result.items.forEach((item, index) => {
+            resultsHtml += '<li><a href="#" onclick="selectLocation(' + item.position.lat + ',' + item.position.lng + '); return false;">' + item.address.label + '</a></li>';
+          });
+          resultsHtml += '</ul>';
+          document.getElementById('results').innerHTML = resultsHtml;
+        } else {
+          alert('Location not found!');
+        }
+      }, (error) => {
+        alert('Geocode error: ' + error.message);
+      });
+    }
+
+    function selectLocation(lat, lng) {
+      var position = { lat: lat, lng: lng };
+      map.setCenter(position);
+      map.setZoom(14);
+      var marker = new H.map.Marker(position);
+      map.addObject(marker);
+    }
+
+    window.onload = initMap;
+  </script>
+</head>
+<body>
+  <div id="searchBar">
+    <input type="text" id="searchInput" placeholder="Rechercher un endroit...">
+    <button id="searchButton">Rechercher</button>
+  </div>
+  <div id="results"></div>
+  <div id="mapContainer"></div>
+  <script src="main.dart.js" type="application/javascript"></script>
+</body>
+</html>
