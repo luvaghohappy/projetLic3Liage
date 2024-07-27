@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vie_sauve/guide.dart';
 import 'package:vie_sauve/mainpage.dart';
 import 'package:vie_sauve/sos.dart';
+import 'compte.dart';
 
 class NaviagtionPage extends StatefulWidget {
   NaviagtionPage({super.key});
@@ -16,7 +17,7 @@ class _NaviagtionPageState extends State<NaviagtionPage> {
   List<Widget> screen = [
     const MainPage(),
     const SOS(),
-    const Guides(),
+    MonComptePage(),
   ];
 
   void _listbotton(int index) {
@@ -59,10 +60,10 @@ class _NaviagtionPageState extends State<NaviagtionPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.help,
+              Icons.person,
               size: 20,
             ),
-            label: 'Guides',
+            label: 'Mon compte',
           ),
         ],
       ),

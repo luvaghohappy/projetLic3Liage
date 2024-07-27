@@ -14,7 +14,7 @@ class _GuidesState extends State<Guides> {
     // final w = MediaQuery.of(context).size.width;
     return Scaffold(
       body: Column(
-        children: [
+        children: const [
           Text("Guide d'utilisation"),
           Text("Notre application "),
         ],
