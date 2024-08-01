@@ -35,7 +35,7 @@ class _MyFormState extends State<MyForm> {
   String? selectedEtat;
   bool _isPasswordValid = true;
   bool _isPasswordMatch = true;
-
+ 
   Future<void> getImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
@@ -106,12 +106,19 @@ class _MyFormState extends State<MyForm> {
 
         if (responseJson['status'] == 'success') {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Enregistrement réussi'),
+            SnackBar(
+              content: Row(
+                children: const [
+                  Icon(Icons.check, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text('Enregistrement réussi avec succès'),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 5),
+              behavior: SnackBarBehavior.floating,
             ),
           );
-
-          // Sauvegarder les informations de l'utilisateur
           await saveUserData('nom', txtnom.text);
           await saveUserData('postnom', txtpostnom.text);
           await saveUserData('prenom', txtprenom.text);
@@ -227,330 +234,339 @@ class _MyFormState extends State<MyForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(top: 20),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Text(
-                  "FORMULAIRE D'INSCRIPTION",
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 20),
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 10),
-              ),
-              GestureDetector(
-                onTap: getImage,
-                child: CircleAvatar(
-                  backgroundColor: Color.fromARGB(255, 192, 146, 9),
-                  radius: 50,
-                  backgroundImage:
-                      _imageFile != null ? FileImage(_imageFile!) : null,
-                  child: _imageFile == null
-                      ? const Icon(
-                          Icons.add_a_photo,
-                          size: 20,
-                          color: Colors.white,
-                        )
-                      : null,
+                const Padding(
+                  padding: EdgeInsets.only(left: 20),
+                  child: Text(
+                    "FORMULAIRE D'ENREGISTREMENT",
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              const Text('Choisissez une photo de profil'),
-              const SizedBox(height: 10),
-              Expanded(
-                child: ListView(
-                  children: [
-                    TextFormField(
-                      controller: txtnom,
-                      decoration:
-                          buildInputDecoration('Nom', 'Entrez votre nom'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre nom';
-                        }
-                        return null;
-                      },
+                const SizedBox(height: 10),
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                ),
+                GestureDetector(
+                  onTap: getImage,
+                  child: CircleAvatar(
+                    backgroundColor: const Color.fromARGB(255, 192, 146, 9),
+                    radius: 50,
+                    backgroundImage:
+                        _imageFile != null ? FileImage(_imageFile!) : null,
+                    child: _imageFile == null
+                        ? const Icon(
+                            Icons.add_a_photo,
+                            size: 20,
+                            color: Colors.white,
+                          )
+                        : null,
+                  ),
+                ),
+                const Text('Choisissez une photo de profil'),
+                const Padding(
+                  padding: EdgeInsets.only(top: 20),
+                ),
+                TextFormField(
+                  controller: txtnom,
+                  decoration: buildInputDecoration('Nom', 'Entrez votre nom'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre nom';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txtpostnom,
+                  decoration:
+                      buildInputDecoration('Postnom', 'Entrez votre postnom'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre postnom';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txtprenom,
+                  decoration:
+                      buildInputDecoration('Prénom', 'Entrez votre prénom'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre prénom';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: selectedsexe,
+                  items: ['Masculin', 'Féminin']
+                      .map((label) => DropdownMenuItem(
+                            child: Text(label),
+                            value: label,
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedsexe = value;
+                    });
+                  },
+                  decoration:
+                      buildInputDecoration('Sexe', 'Sélectionnez votre sexe'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez sélectionner votre sexe';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txtdate_naiss,
+                  decoration: buildInputDecoration(
+                    'Date de naissance',
+                    'Entrez votre date de naissance',
+                    IconButton(
+                      iconSize: 16,
+                      onPressed: () => _selectDate(context),
+                      icon: const Icon(Icons.calendar_today),
                     ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txtpostnom,
-                      decoration: buildInputDecoration(
-                          'Postnom', 'Entrez votre postnom'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre postnom';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txtprenom,
-                      decoration:
-                          buildInputDecoration('Prénom', 'Entrez votre prénom'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre prénom';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    DropdownButtonFormField<String>(
-                      value: selectedsexe,
-                      items: ['Masculin', 'Féminin']
-                          .map((label) => DropdownMenuItem(
-                                child: Text(label),
-                                value: label,
-                              ))
-                          .toList(),
-                      onChanged: (value) {
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre date de naissance';
+                    }
+                    return null;
+                  },
+                  readOnly: true,
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txtAdresse,
+                  decoration:
+                      buildInputDecoration('Adresse', 'Entrez votre adresse'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre adresse';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: selectedEtat,
+                  items: ['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Veuf(ve)']
+                      .map((label) => DropdownMenuItem(
+                            child: Text(label),
+                            value: label,
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedEtat = value;
+                    });
+                  },
+                  decoration: buildInputDecoration(
+                      'État civil', 'Sélectionnez votre état civil'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez sélectionner votre état civil';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                if (selectedEtat == 'Marié(e)')
+                  TextFormField(
+                    controller: txtnombre_enfant,
+                    decoration: buildInputDecoration(
+                        'Nombre d\'enfants', 'Entrez le nombre d\'enfants'),
+                    validator: (value) {
+                      if (selectedEtat == 'Marié(e)' &&
+                          (value == null || value.isEmpty)) {
+                        return 'Veuillez entrer le nombre d\'enfants';
+                      }
+                      return null;
+                    },
+                  ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txtEtat_sanitaire,
+                  decoration: buildInputDecoration(
+                      'État sanitaire', 'Entrez votre état sanitaire'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre état sanitaire';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txtalergie,
+                  decoration: buildInputDecoration('Allergie',
+                      'Entrez vos allergies (si aucun, mettre "aucun")'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer vos allergies';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txttaille,
+                  decoration:
+                      buildInputDecoration('Taille', 'Entrez votre taille'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre taille';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txtpoids,
+                  decoration:
+                      buildInputDecoration('Poids', 'Entrez votre poids'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre poids';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txtnumero,
+                  decoration: buildInputDecoration('Numéro de téléphone',
+                      'Entrez votre numéro de téléphone'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre numéro de téléphone';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  keyboardType: TextInputType.emailAddress,
+                  controller: txtemail,
+                  decoration:
+                      buildInputDecoration('Email', 'Entrez votre email'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer votre email';
+                    } else if (!RegExp(r'^[\w-]+@([\w-]+\.)+[\w-]{2,4}$')
+                        .hasMatch(value)) {
+                      return 'Veuillez entrer un email valide';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txtmotdepasse,
+                  obscureText: _obscureTextMotDePasse,
+                  decoration: buildInputDecoration(
+                    'Mot de passe',
+                    'Entrez votre mot de passe',
+                    IconButton(
+                      icon: Icon(_obscureTextMotDePasse
+                          ? Icons.visibility
+                          : Icons.visibility_off),
+                      onPressed: () {
                         setState(() {
-                          selectedsexe = value;
+                          _obscureTextMotDePasse = !_obscureTextMotDePasse;
                         });
                       },
-                      decoration: buildInputDecoration(
-                          'Sexe', 'Sélectionnez votre sexe'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez sélectionner votre sexe';
-                        }
-                        return null;
-                      },
                     ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txtdate_naiss,
-                      decoration: buildInputDecoration(
-                        'Date de naissance',
-                        'Entrez votre date de naissance',
-                        IconButton(
-                          iconSize: 16,
-                          onPressed: () => _selectDate(context),
-                          icon: const Icon(Icons.calendar_today),
-                        ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer un mot de passe';
+                    } else if (value.length < 8) {
+                      return 'Le mot de passe doit comporter au moins 8 caractères';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    _validatePassword();
+                  },
+                ),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      'Le mot de passe doit comporter au moins 8 caractères',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: txtconfig,
+                  obscureText: _obscureTextConf,
+                  decoration: buildInputDecoration(
+                    'Confirmer mot de passe',
+                    'Confirmez votre mot de passe',
+                    IconButton(
+                      icon: Icon(
+                        _isPasswordMatch ? Icons.check : Icons.close,
+                        color: _isPasswordMatch ? Colors.green : Colors.red,
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre date de naissance';
-                        }
-                        return null;
-                      },
-                      readOnly: true,
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txtAdresse,
-                      decoration: buildInputDecoration(
-                          'Adresse', 'Entrez votre adresse'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre adresse';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    DropdownButtonFormField<String>(
-                      value: selectedEtat,
-                      items:
-                          ['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Veuf(ve)']
-                              .map((label) => DropdownMenuItem(
-                                    child: Text(label),
-                                    value: label,
-                                  ))
-                              .toList(),
-                      onChanged: (value) {
+                      onPressed: () {
                         setState(() {
-                          selectedEtat = value;
+                          _obscureTextConf = !_obscureTextConf;
                         });
                       },
-                      decoration: buildInputDecoration(
-                          'État civil', 'Sélectionnez votre état civil'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez sélectionner votre état civil';
-                        }
-                        return null;
-                      },
                     ),
-                    const SizedBox(height: 10),
-                    if (selectedEtat == 'Marié(e)')
-                      TextFormField(
-                        controller: txtnombre_enfant,
-                        decoration: buildInputDecoration(
-                            'Nombre d\'enfants', 'Entrez le nombre d\'enfants'),
-                        validator: (value) {
-                          if (selectedEtat == 'Marié(e)' &&
-                              (value == null || value.isEmpty)) {
-                            return 'Veuillez entrer le nombre d\'enfants';
-                          }
-                          return null;
-                        },
-                      ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txtEtat_sanitaire,
-                      decoration: buildInputDecoration(
-                          'État sanitaire', 'Entrez votre état sanitaire'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre état sanitaire';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txtalergie,
-                      decoration: buildInputDecoration('Allergie',
-                          'Entrez vos allergies (si aucun, mettre "aucun")'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer vos allergies';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txttaille,
-                      decoration:
-                          buildInputDecoration('Taille', 'Entrez votre taille'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre taille';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txtpoids,
-                      decoration:
-                          buildInputDecoration('Poids', 'Entrez votre poids'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre poids';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txtnumero,
-                      decoration: buildInputDecoration('Numéro de téléphone',
-                          'Entrez votre numéro de téléphone'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre numéro de téléphone';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      keyboardType: TextInputType.emailAddress,
-                      controller: txtemail,
-                      decoration:
-                          buildInputDecoration('Email', 'Entrez votre email'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre email';
-                        } else if (!RegExp(r'^[\w-]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(value)) {
-                          return 'Veuillez entrer un email valide';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txtmotdepasse,
-                      obscureText: _obscureTextMotDePasse,
-                      decoration: buildInputDecoration(
-                        'Mot de passe',
-                        'Entrez votre mot de passe',
-                        IconButton(
-                          icon: Icon(_obscureTextMotDePasse
-                              ? Icons.visibility
-                              : Icons.visibility_off),
-                          onPressed: () {
-                            setState(() {
-                              _obscureTextMotDePasse = !_obscureTextMotDePasse;
-                            });
-                          },
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer un mot de passe';
-                        } else if (value.length < 8) {
-                          return 'Le mot de passe doit comporter au moins 8 caractères';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        _validatePassword();
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: txtconfig,
-                      obscureText: _obscureTextConf,
-                      decoration: buildInputDecoration(
-                        'Confirmer mot de passe',
-                        'Confirmez votre mot de passe',
-                        IconButton(
-                          icon: Icon(_obscureTextConf
-                              ? Icons.visibility
-                              : Icons.visibility_off),
-                          onPressed: () {
-                            setState(() {
-                              _obscureTextConf = !_obscureTextConf;
-                            });
-                          },
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez confirmer votre mot de passe';
-                        } else if (value != txtmotdepasse.text) {
-                          return 'Les mots de passe ne correspondent pas';
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        _validatePassword();
-                      },
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 10),
-                    ),
-                    SizedBox(
-                      height: 60,
-                      width:
-                          double.infinity, // Prend toute la largeur disponible
-                      child: ElevatedButton(
-                        onPressed: insertData,
-                        style: ElevatedButton.styleFrom(
-                          primary: const Color.fromARGB(255, 187, 142,
-                              8), // Définir la couleur de fond sur amber
-                        ),
-                        child: const Text('Soumettre'),
-                      ),
-                    ),
-                  ],
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez confirmer votre mot de passe';
+                    } else if (value != txtmotdepasse.text) {
+                      return 'Les mots de passe ne correspondent pas';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    _validatePassword();
+                  },
                 ),
-              ),
-            ],
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                ),
+                SizedBox(
+                  height: 45,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: insertData,
+                    style: ElevatedButton.styleFrom(
+                      primary: const Color.fromARGB(255, 187, 142, 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Soumettre'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

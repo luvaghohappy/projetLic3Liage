@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:vie_sauve/apropos.dart';
+import 'package:vie_sauve/guide.dart';
 import 'package:vie_sauve/login.dart';
+import 'package:vie_sauve/setting.dart';
 import 'compte.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,6 +36,7 @@ class _MainPageState extends State<MainPage> {
     'https://th.bing.com/th/id/R.eaa7a625258287b3eadfd9ef57c82bf1?rik=7s3BwYdPgYDO7Q&pid=ImgRaw&r=0',
   ];
 
+  @override
   void initState() {
     super.initState();
     _loadUserData();
@@ -51,6 +55,13 @@ class _MainPageState extends State<MainPage> {
     final item = items.isNotEmpty ? items[0] : {};
     final h = MediaQuery.of(context).size.height;
     final w = MediaQuery.of(context).size.width;
+
+    // Vérifiez et construisez l'URL de l'image
+    final imageUrl = imagePath != null
+        ? "http://192.168.43.148:81/projetSV/$imagePath"
+        : null;
+    print('Image URL: $imageUrl');
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -65,18 +76,14 @@ class _MainPageState extends State<MainPage> {
           style: TextStyle(fontSize: 12, color: Colors.black),
         ),
         actions: [
-          imagePath != null
-              ? Image.network(
-                  "http://192.168.43.148:81/projetSV/uploads/$imagePath",
-                  fit: BoxFit.cover,
-                )
-              : const CircleAvatar(
-                  radius: 17,
-                  backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, size: 12),
-                ),
+          CircleAvatar(
+            radius: 18,
+            backgroundImage: imageUrl != null ? NetworkImage(imageUrl) : null,
+            backgroundColor: Colors.grey,
+            child: imageUrl == null ? const Icon(Icons.person, size: 50) : null,
+          ),
           const Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: EdgeInsets.only(left: 5),
           ),
           Center(
             child: Text(
@@ -84,10 +91,71 @@ class _MainPageState extends State<MainPage> {
               style: const TextStyle(color: Colors.black),
             ),
           ),
-          IconButton(
-            color: Colors.black,
-            onPressed: () {},
-            icon: const Icon(Icons.more_vert_outlined),
+          PopupMenuButton<int>(
+            icon: const Icon(
+              Icons.more_vert_outlined,
+              color: Colors.black,
+            ),
+            onSelected: (value) {
+              switch (value) {
+                case 0:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Settings(),
+                    ),
+                  );
+                  break;
+                case 1:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Guides(),
+                    ),
+                  );
+                  break;
+                case 2:
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Apropos(),
+                    ),
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<int>>[
+              PopupMenuItem<int>(
+                value: 0,
+                child: Row(
+                  children: const [
+                    Icon(Icons.settings, size: 15, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('Paramètres'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<int>(
+                value: 1,
+                child: Row(
+                  children: const [
+                    Icon(Icons.book, size: 15, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('Guide'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<int>(
+                value: 2,
+                child: Row(
+                  children: const [
+                    Icon(Icons.info, size: 15, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('À propos'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -157,140 +225,57 @@ class _MainPageState extends State<MainPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: const [
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                      ),
-                      FaIcon(
-                        FontAwesomeIcons.solidCircle,
-                        size: 7,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                      ),
-                      Text(
-                        'AMBULANCE',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17),
-                      ),
-                    ],
+                  const Text(
+                    '1. Localisation des appels d’urgence:',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                   ),
                   Text(
-                    "Les ambulanciers sont souvent parmi les premiers à arriver sur les lieux d'une urgence médicale, prêts à fournir des soins immédiats.",
+                    "La fonction de localisation des appels d'urgence permet de déterminer avec précision la position géographique des appelants en détresse. Grâce à la géolocalisation en temps réel, les services d'urgence peuvent localiser rapidement les utilisateurs et envoyer les secours appropriés à l'endroit exact.",
                     style: GoogleFonts.abel(),
-                  ),
-                  Text(
-                    "Ils effectuent une évaluation rapide de l'état du patient pour déterminer la nature et la gravité de l'urgence.",
-                    style: GoogleFonts.abel(),
-                  ),
-                  Text(
-                    "Les ambulanciers administrent des premiers soins essentiels tels que la réanimation cardio-pulmonaire (RCP), l'arrêt des saignements, et la gestion des voies respiratoires.",
-                    style: GoogleFonts.abel(),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20),
-                  ),
-                  Container(
-                    height: h * 0.3,
-                    width: w,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage('assets/policier.jpg'),
-                          fit: BoxFit.cover),
-                    ),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                   ),
-                  // Section Police
-                  Row(
-                    children: const [
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                      ),
-                      FaIcon(
-                        FontAwesomeIcons.solidCircle,
-                        size: 7,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                      ),
-                      Text(
-                        'POLICE',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17,
-                        ),
-                      ),
-                    ],
+                  const Text(
+                    '2. Assistance médicale à distance:',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                   ),
                   Text(
-                    "Les agents de police sont souvent les premiers intervenants sur les lieux d'un incident. Leur arrivée rapide est essentielle pour évaluer la situation et initier les premières actions nécessaires.",
+                    "En attendant l'arrivée des secours, VIE-SAUVE offre une assistance médicale à distance. Les utilisateurs peuvent recevoir des instructions vitales, des conseils sur les premiers secours et des indications sur les mesures à prendre en cas d'urgence médicale.",
                     style: GoogleFonts.abel(),
-                  ),
-                  Text(
-                    "Ils établissent un périmètre de sécurité pour protéger les victimes, les témoins et empêcher l'accès non autorisé. Cela permet aux autres services d'urgence de travailler en toute sécurité.",
-                    style: GoogleFonts.abel(),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20),
-                  ),
-
-                  Container(
-                    height: h * 0.3,
-                    width: w,
-                    decoration: const BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage('assets/pompier.png'),
-                          fit: BoxFit.cover),
-                    ),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                   ),
-                  // Section Pompier
-                  Row(
-                    children: const [
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                      ),
-                      FaIcon(
-                        FontAwesomeIcons.solidCircle,
-                        size: 7,
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                      ),
-                      Text(
-                        'POMPIER',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17),
-                      ),
-                    ],
+                  const Text(
+                    '3. Répertoire des contacts d’urgence:',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                   ),
                   Text(
-                    "Les pompiers se déploient rapidement pour éteindre les incendies et empêcher leur propagation.",
+                    "L'application permet aux utilisateurs de créer un répertoire personnalisé de contacts d'urgence, comprenant des membres de la famille, des amis proches et des professionnels de la santé. En cas de besoin, les utilisateurs peuvent rapidement informer leurs contacts d'urgence de leur situation.",
                     style: GoogleFonts.abel(),
                   ),
-                  Text(
-                    "Ils utilisent diverses techniques et équipements spécialisés pour combattre les feux de différentes natures (feux de structure, de forêt, de véhicules, etc.).",
-                    style: GoogleFonts.abel(),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10),
+                  ),
+                  const Text(
+                    '4. Historique des incidents:',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10),
                   ),
                   Text(
-                    'Les pompiers effectuent des opérations de recherche pour localiser et secourir les personnes piégées dans des bâtiments en feu, des véhicules accidentés ou des zones dangereuses.',
+                    "VIE-SAUVE conserve un historique détaillé des incidents signalés par les utilisateurs. Cela permet aux utilisateurs de consulter leurs rapports d'urgence passés, de suivre l'évolution de chaque incident et de partager les informations avec les autorités compétentes si nécessaire.",
                     style: GoogleFonts.abel(),
                   ),
                 ],
@@ -299,95 +284,54 @@ class _MainPageState extends State<MainPage> {
             const Padding(
               padding: EdgeInsets.only(top: 20),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'IV. Nos Interventions',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 10),
-                  ),
-                  Container(
-                    height: 250,
-                    width: double.infinity,
-                    child: CarouselSlider(
-                      options: CarouselOptions(
-                        autoPlay: true,
-                        enlargeCenterPage: true,
-                        aspectRatio: 2.0,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            // Update the state if necessary
-                          });
-                        },
-                      ),
-                      items: images.map((imageUrl) {
-                        return Container(
-                          margin: const EdgeInsets.all(5.0),
-                          child: ClipRRect(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(10.0)),
-                            child: Stack(
-                              children: <Widget>[
-                                Image.network(
-                                  imageUrl,
-                                  fit: BoxFit.cover,
-                                  width: 1000.0,
-                                ),
-                                Positioned(
-                                  bottom: 0.0,
-                                  left: 0.0,
-                                  right: 0.0,
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          Color.fromARGB(200, 0, 0, 0),
-                                          Color.fromARGB(0, 0, 0, 0)
-                                        ],
-                                        begin: Alignment.bottomCenter,
-                                        end: Alignment.topCenter,
-                                      ),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10.0, horizontal: 20.0),
-                                    child: const Text(
-                                      'Services Urgence',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ],
-              ),
+            const Divider(
+              color: Colors.grey,
+              thickness: 2,
+              indent: 20,
+              endIndent: 20,
             ),
             const Padding(
               padding: EdgeInsets.only(top: 10),
             ),
-            Container(
-              height: 40,
-              width: double.infinity,
-              color: Colors.white,
-              child: const Center(
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Align(
+                alignment: Alignment.centerLeft,
                 child: Text(
-                  '@Copyright VIE-SAUVE 2024',
-                  style: TextStyle(fontSize: 15),
+                  "Nous croyons fermement que VIE-SAUVE sera un outil précieux pour renforcer la sécurité et le sauvetage dans notre communauté, en permettant des interventions plus rapides, une assistance médicale à distance efficace et une tranquillité d'esprit pour nos utilisateurs.",
+                  style: GoogleFonts.abel(),
                 ),
               ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+            ),
+            CarouselSlider(
+              items: images.map((imageUrl) {
+                return Container(
+                  margin: const EdgeInsets.all(5.0),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                    child: Stack(
+                      children: <Widget>[
+                        Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          width: 1000.0,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+              options: CarouselOptions(
+                autoPlay: true,
+                aspectRatio: 2.0,
+                enlargeCenterPage: true,
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
             ),
           ],
         ),

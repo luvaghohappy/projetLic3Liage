@@ -3,6 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
+import 'dart:convert';
+
+import 'livechat/livestream.dart';
 
 class SOS extends StatefulWidget {
   const SOS({super.key});
@@ -36,6 +39,25 @@ class _SOSState extends State<SOS> {
   }
 
   Future<void> _getCurrentLocation() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      return Future.error('Location services are disabled.');
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     setState(() {
@@ -45,8 +67,6 @@ class _SOSState extends State<SOS> {
   }
 
   Future<void> _sendData(String type) async {
-    await _checkPermissions(); // Vérifier les permissions avant d'accéder à la localisation
-
     await _getCurrentLocation();
     if (nom != null &&
         postnom != null &&
@@ -55,39 +75,65 @@ class _SOSState extends State<SOS> {
         latitude != null &&
         longitude != null) {
       final response = await http.post(
-        Uri.parse('http://192.168.43.148:81/projetSV/calls.php/$type'),
-        body: {
+        Uri.parse('http://192.168.43.148:81/projetSV/calls.php'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
           'nom': nom!,
           'postnom': postnom!,
           'prenom': prenom!,
           'sexe': sexe!,
           'latitude': latitude.toString(),
           'longitude': longitude.toString(),
-        },
+          'type': type, // Ajouter le type d'urgence ici
+        }),
       );
 
       if (response.statusCode == 200) {
-        print('Data sent successfully');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.check, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Demande soumise avec succès'),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 10),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       } else {
-        print('Failed to send data');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: const [
+                Icon(Icons.error, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Échec de l\'envoi des données'),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
       }
     } else {
-      print('User data or location is missing');
-    }
-  }
-
-  Future<void> _checkPermissions() async {
-    var status = await Permission.location.status;
-    if (!status.isGranted) {
-      var result = await Permission.location.request();
-      if (result.isGranted) {
-        print('Location permission granted');
-      } else {
-        print('Location permission denied');
-        // Vous pouvez afficher une boîte de dialogue pour informer l'utilisateur
-      }
-    } else {
-      print('Location permission already granted');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: const [
+              Icon(Icons.warning, color: Colors.white),
+              SizedBox(width: 8),
+              Text('Données utilisateur ou localisation manquantes'),
+            ],
+          ),
+          backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 5),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
@@ -143,8 +189,9 @@ class _SOSState extends State<SOS> {
                 text: 'CHAT LIVE',
                 imageUrl: 'assets/chat.jpg',
                 onPressed: () {
-                  // Action spécifique pour CHAT LIVE
-                  print('CHAT LIVE pressed');
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const Live(),
+                  ));
                 },
               ),
             ],
