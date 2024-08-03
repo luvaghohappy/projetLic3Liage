@@ -190,7 +190,7 @@ class _SOSState extends State<SOS> {
                 imageUrl: 'assets/chat.jpg',
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const Live(),
+                    builder: (context) => const Livechat(),
                   ));
                 },
               ),

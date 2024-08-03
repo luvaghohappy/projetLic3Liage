@@ -1,145 +1,155 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:vie_sauve/livechat/chat.dart';
-import 'package:vie_sauve/livechat/stream.dart';
-import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Live extends StatefulWidget {
-  const Live({super.key});
+class Livechat extends StatefulWidget {
+  const Livechat({super.key});
 
   @override
-  State<Live> createState() => _LiveState();
+  State<Livechat> createState() => _LivechatState();
 }
 
-class _LiveState extends State<Live> {
-  String opID = ''; // Stocke l'opID de l'opérateur
-
+class _LivechatState extends State<Livechat> {
   @override
   void initState() {
     super.initState();
-    requestPermissions();
-    fetchOpID(); // Récupère l'opID lors de l'initialisation
+    // requestPermissions();
+    // fetchOpID();
+    fetch();
   }
 
-  Future<void> requestPermissions() async {
-    await Permission.microphone.request();
-    await Permission.camera.request();
-  }
+  List<Map<String, dynamic>> items = [];
 
-  Future<void> fetchOpID() async {
-    final response = await http.get(
-      Uri.parse('https://votrebackend.com/getOpID'), // Remplacez par votre endpoint backend
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+  Future<void> fetch() async {
+    try {
+      final response = await http.get(
+        Uri.parse("http://192.168.43.148:81/projetSV/chargerop.php"),
+      );
       setState(() {
-        opID = data['opID']; // Récupère l'opID depuis la réponse JSON
+        items = List<Map<String, dynamic>>.from(json.decode(response.body));
       });
-    } else {
-      // Gérer les erreurs
-      print('Erreur lors de la récupération de l\'opID');
-    }
-  }
-
-  void startVoiceCall() {
-    if (opID.isEmpty) {
-      // Gérer le cas où l'opID n'est pas encore chargé
-      print('L\'opID de l\'opérateur n\'est pas disponible');
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ZegoUIKitPrebuiltCall(
-          appID: 1926018635,
-          appSign: '46eed34d55a21d12d56f8dd7c1b450b7d83f4c5eb8ddffbc40538288590c26d7',
-          userID: '1',
-          userName: 'user1',
-          callID: opID, // Utilise l'opID de l'opérateur pour l'appel
-          config: ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall(),
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to load items'),
         ),
-      ),
-    );
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final h = MediaQuery.of(context).size.height;
-    final w = MediaQuery.of(context).size.width;
+    //  final imageUrl = imagePath != null
+    //     ? "http://192.168.43.148:81/projetSV/$imagePath"
+    //     : null;
+    // print('Image URL: $imageUrl');
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Communication Options',
-          style: TextStyle(color: Colors.black),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const LiveStream(),
-                ));
-              },
-              icon: const Icon(Icons.live_tv, size: 30),
-              label: const Text('Livestream'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                    horizontal: w * 0.25, vertical: h * 0.02),
-                primary: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                textStyle: const TextStyle(fontSize: 18),
-              ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 30),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Text(
+              'Communiquer avec les operateurs',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20),
             ),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: () {
-                startVoiceCall();
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 20),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.blue,
+                      backgroundImage: item['image_path'] != null
+                          ? NetworkImage(
+                              "http://192.168.43.148:81/projetSV/${item['image_path']}")
+                          : null,
+                      child: item['image_path'] == null
+                          ? const Icon(Icons.image,
+                              size: 20, color: Colors.grey)
+                          : null,
+                    ),
+                    title: Text(
+                      item['nom'] ?? 'N/A',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    subtitle: Text(
+                      item['prenom'] ?? 'N/A',
+                      style: const TextStyle(
+                        color: Colors.black26,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.green,
+                          radius: 15,
+                          child: IconButton(
+                            color: Colors.white,
+                            iconSize: 12,
+                            icon: const Icon(Icons.call),
+                            onPressed: () {
+                              // Handle call action
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        CircleAvatar(
+                          backgroundColor: Colors.red,
+                          radius: 15,
+                          child: IconButton(
+                            color: Colors.white,
+                            iconSize: 12,
+                            icon: const Icon(Icons.live_tv),
+                            onPressed: () {
+                              // Handle live stream action
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        CircleAvatar(
+                          backgroundColor: Colors.blue,
+                          radius: 15,
+                          child: IconButton(
+                            color: Colors.white,
+                            iconSize: 12,
+                            icon: const Icon(Icons.chat),
+                            onPressed: () {
+                              // Handle chat action
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               },
-              icon: const Icon(Icons.call, size: 30),
-              label: const Text('Appel vocal'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                    horizontal: w * 0.25, vertical: h * 0.02),
-                primary: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                textStyle: const TextStyle(fontSize: 18),
-              ),
             ),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const Chatapp(),
-                ));
-              },
-              icon: const Icon(Icons.chat, size: 30),
-              label: const Text('Chat'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(
-                    horizontal: w * 0.25, vertical: h * 0.02),
-                primary: Colors.blue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                textStyle: const TextStyle(fontSize: 18),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

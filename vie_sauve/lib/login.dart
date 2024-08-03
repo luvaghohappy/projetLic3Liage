@@ -35,7 +35,7 @@ class _MyFormState extends State<MyForm> {
   String? selectedEtat;
   bool _isPasswordValid = true;
   bool _isPasswordMatch = true;
- 
+
   Future<void> getImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
@@ -368,10 +368,12 @@ class _MyFormState extends State<MyForm> {
                 DropdownButtonFormField<String>(
                   value: selectedEtat,
                   items: ['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Veuf(ve)']
-                      .map((label) => DropdownMenuItem(
-                            child: Text(label),
-                            value: label,
-                          ))
+                      .map(
+                        (label) => DropdownMenuItem(
+                          child: Text(label),
+                          value: label,
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) {
                     setState(() {

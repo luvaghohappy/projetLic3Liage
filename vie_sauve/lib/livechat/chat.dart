@@ -10,6 +10,10 @@ class Chatapp extends StatefulWidget {
 class _ChatappState extends State<Chatapp> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      body: Column(
+        children: [],
+      ),
+    );
   }
 }

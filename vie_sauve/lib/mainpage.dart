@@ -65,22 +65,17 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: const CircleAvatar(
-          radius: 8,
-          backgroundImage: NetworkImage(
-            'https://th.bing.com/th/id/R.c11b6f38dffc24a4508217513b0e50bd?rik=gu0HLGdqJNF5Rg&pid=ImgRaw&r=0',
-          ),
-        ),
-        title: const Text(
-          'VIE_SAUVE',
-          style: TextStyle(fontSize: 12, color: Colors.black),
+        leading: Image.asset(
+          'assets/logo.jpg',
+          height: 40,
+          width: 60,
         ),
         actions: [
           CircleAvatar(
             radius: 18,
             backgroundImage: imageUrl != null ? NetworkImage(imageUrl) : null,
             backgroundColor: Colors.grey,
-            child: imageUrl == null ? const Icon(Icons.person, size: 50) : null,
+            child: imageUrl == null ? const Icon(Icons.person, size: 15) : null,
           ),
           const Padding(
             padding: EdgeInsets.only(left: 5),
@@ -209,12 +204,11 @@ class _MainPageState extends State<MainPage> {
               padding: EdgeInsets.only(top: 20),
             ),
             Container(
-              height: h * 0.3,
+              height: h * 0.4,
               width: w,
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                    image: AssetImage('assets/ambulance.png'),
-                    fit: BoxFit.cover),
+                    image: AssetImage('assets/logo.jpg'), fit: BoxFit.cover),
               ),
             ),
             const Padding(
@@ -232,9 +226,22 @@ class _MainPageState extends State<MainPage> {
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                   ),
-                  Text(
-                    "La fonction de localisation des appels d'urgence permet de déterminer avec précision la position géographique des appelants en détresse. Grâce à la géolocalisation en temps réel, les services d'urgence peuvent localiser rapidement les utilisateurs et envoyer les secours appropriés à l'endroit exact.",
-                    style: GoogleFonts.abel(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        'assets/appel.png',
+                        height: 70,
+                        width: 60,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "La fonction de localisation des appels d'urgence permet de déterminer avec précision la position géographique des appelants en détresse. Grâce à la géolocalisation en temps réel, les services d'urgence peuvent localiser rapidement les utilisateurs et envoyer les secours appropriés à l'endroit exact.",
+                          style: GoogleFonts.abel(),
+                        ),
+                      ),
+                    ],
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
@@ -246,9 +253,22 @@ class _MainPageState extends State<MainPage> {
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                   ),
-                  Text(
-                    "En attendant l'arrivée des secours, VIE-SAUVE offre une assistance médicale à distance. Les utilisateurs peuvent recevoir des instructions vitales, des conseils sur les premiers secours et des indications sur les mesures à prendre en cas d'urgence médicale.",
-                    style: GoogleFonts.abel(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        'assets/soin.png',
+                        height: 70,
+                        width: 60,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "En attendant l'arrivée des secours, VIE-SAUVE offre une assistance médicale à distance. Les utilisateurs peuvent recevoir des instructions vitales, des conseils sur les premiers secours et des indications sur les mesures à prendre en cas d'urgence médicale.",
+                          style: GoogleFonts.abel(),
+                        ),
+                      ),
+                    ],
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
@@ -260,9 +280,22 @@ class _MainPageState extends State<MainPage> {
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                   ),
-                  Text(
-                    "L'application permet aux utilisateurs de créer un répertoire personnalisé de contacts d'urgence, comprenant des membres de la famille, des amis proches et des professionnels de la santé. En cas de besoin, les utilisateurs peuvent rapidement informer leurs contacts d'urgence de leur situation.",
-                    style: GoogleFonts.abel(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        'assets/numero.png',
+                        height: 70,
+                        width: 60,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "L'application permet aux utilisateurs de créer un répertoire personnalisé de contacts d'urgence, comprenant des membres de la famille, des amis proches et des professionnels de la santé. En cas de besoin, les utilisateurs peuvent rapidement informer leurs contacts d'urgence de leur situation.",
+                          style: GoogleFonts.abel(),
+                        ),
+                      ),
+                    ],
                   ),
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
@@ -274,9 +307,22 @@ class _MainPageState extends State<MainPage> {
                   const Padding(
                     padding: EdgeInsets.only(top: 10),
                   ),
-                  Text(
-                    "VIE-SAUVE conserve un historique détaillé des incidents signalés par les utilisateurs. Cela permet aux utilisateurs de consulter leurs rapports d'urgence passés, de suivre l'évolution de chaque incident et de partager les informations avec les autorités compétentes si nécessaire.",
-                    style: GoogleFonts.abel(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        'assets/histoire.png',
+                        height: 70,
+                        width: 60,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "VIE-SAUVE conserve un historique détaillé des incidents signalés par les utilisateurs. Cela permet aux utilisateurs de consulter leurs rapports d'urgence passés, de suivre l'évolution de chaque incident et de partager les informations avec les autorités compétentes si nécessaire.",
+                          style: GoogleFonts.abel(),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
