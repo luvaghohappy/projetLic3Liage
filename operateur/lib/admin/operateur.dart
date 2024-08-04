@@ -18,7 +18,7 @@ class _Users2State extends State<Users2> {
   TextEditingController txtemail = TextEditingController();
   TextEditingController txtpassword = TextEditingController();
   TextEditingController txtrole = TextEditingController();
-  late html.File _selectedFile;
+  Uint8List? _selectedFileBytes;
 
   Future<void> _getImage() async {
     final html.FileUploadInputElement input = html.FileUploadInputElement();
@@ -27,14 +27,19 @@ class _Users2State extends State<Users2> {
 
     input.onChange.listen((event) {
       final file = input.files!.first;
-      setState(() {
-        _selectedFile = file;
+      final reader = html.FileReader();
+      reader.readAsArrayBuffer(file);
+
+      reader.onLoadEnd.listen((e) {
+        setState(() {
+          _selectedFileBytes = reader.result as Uint8List;
+        });
       });
     });
   }
 
   Future<void> insertData() async {
-    if (_selectedFile != null) {
+    if (_selectedFileBytes != null) {
       try {
         var request = http.MultipartRequest(
           'POST',
@@ -47,15 +52,22 @@ class _Users2State extends State<Users2> {
         request.fields['passwords'] = txtpassword.text;
         request.fields['roles'] = txtrole.text;
 
-        var image = await http.MultipartFile.fromPath(
-          'profil',
-          _selectedFile.relativePath!,
-        );
-        request.files.add(image);
+        var image = _selectedFileBytes != null
+            ? http.MultipartFile.fromBytes(
+                'profil',
+                _selectedFileBytes!,
+                filename: 'image.jpg',
+              )
+            : null;
+
+        if (image != null) {
+          request.files.add(image);
+        }
 
         var response = await request.send();
 
         if (response.statusCode == 200) {
+          _selectedFileBytes = null;
           txtnom.clear();
           txtpostnom.clear();
           txtprenom.clear();
@@ -68,6 +80,7 @@ class _Users2State extends State<Users2> {
               content: Text('Enregistrement réussi'),
             ),
           );
+          fetchData();
         } else {
           throw Exception('Erreur lors de l\'enregistrement');
         }
@@ -117,126 +130,294 @@ class _Users2State extends State<Users2> {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Ajouter Formation'),
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 80,
+                      width: 120,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: _selectedFileBytes != null
+                          ? Image.memory(_selectedFileBytes!)
+                          : IconButton(
+                              onPressed: () async {
+                                final html.FileUploadInputElement input =
+                                    html.FileUploadInputElement();
+                                input.accept = 'image/*';
+                                input.click();
+
+                                input.onChange.listen((event) {
+                                  final file = input.files!.first;
+                                  final reader = html.FileReader();
+                                  reader.readAsArrayBuffer(file);
+
+                                  reader.onLoadEnd.listen((e) {
+                                    setState(() {
+                                      _selectedFileBytes =
+                                          reader.result as Uint8List;
+                                    });
+                                  });
+                                });
+                              },
+                              icon: const Icon(Icons.file_upload),
+                            ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: TextField(
+                        controller: txtnom,
+                        cursorColor: Colors.black,
+                        decoration: const InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          labelText: 'Nom',
+                          labelStyle: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: TextField(
+                        controller: txtpostnom,
+                        cursorColor: Colors.black,
+                        decoration: const InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          labelText: 'Postnom',
+                          labelStyle: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: TextField(
+                        controller: txtprenom,
+                        cursorColor: Colors.black,
+                        decoration: const InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          labelText: 'Prenom',
+                          labelStyle: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: TextField(
+                        controller: txtemail,
+                        cursorColor: Colors.black,
+                        decoration: const InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          labelText: 'Email',
+                          labelStyle: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: TextField(
+                        controller: txtpassword,
+                        cursorColor: Colors.black,
+                        decoration: const InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          labelText: 'Password',
+                          labelStyle: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: TextField(
+                        controller: txtrole,
+                        cursorColor: Colors.black,
+                        decoration: const InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                          ),
+                          labelText: 'Role',
+                          labelStyle: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Annuler'),
+                ),
+                TextButton(
+                  onPressed: insertData,
+                  child: const Text('Enregistrer'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> deleteData(String? userId) async {
+    if (userId == null || userId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ID utilisateur invalide'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse("http://192.168.43.148:81/projetSV/deleteop.php"),
+        body: {'id': userId},
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['status'] == 'success') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Suppression réussie'),
+            ),
+          );
+          fetchData();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Erreur lors de la suppression : ${result['message']}'),
+            ),
+          );
+        }
+      } else {
+        throw Exception('Erreur lors de la suppression');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de la suppression: $e'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _confirmDelete(String? userId) async {
+    if (userId == null || userId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ID utilisateur invalide'),
+        ),
+      );
+      return;
+    }
+
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Ajouter Formation'),
+          title: const Text('Confirmation de suppression'),
+          content: const Text(
+            'Êtes-vous sûr de vouloir supprimer cet enregistrement ?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Supprimer'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      await deleteData(userId);
+    }
+  }
+
+  Future<void> _showEditDialog(Map<String, dynamic> item) async {
+    txtnom.text = item['nom'] ?? '';
+    txtpostnom.text = item['postnom'] ?? '';
+    txtprenom.text = item['prenom'] ?? '';
+    txtemail.text = item['email'] ?? '';
+    txtpassword.text = item['passwords'] ?? '';
+    txtrole.text = item['roles'] ?? '';
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Modifier Utilisateur'),
           content: SingleChildScrollView(
             child: Column(
               children: [
-                Container(
-                  height: 80,
-                  width: 120,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: Colors.white),
-                  ),
-                  child: _selectedFile != null
-                      ? Image.network(_selectedFile.relativePath!)
-                      : IconButton(
-                          onPressed: _getImage,
-                          icon: const Icon(Icons.file_upload),
-                        ),
+                TextField(
+                  controller: txtnom,
+                  decoration: const InputDecoration(labelText: 'Nom'),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    controller: txtnom,
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey.shade400),
-                      ),
-                      labelText: 'Nom',
-                      labelStyle: const TextStyle(color: Colors.black),
-                    ),
-                  ),
+                TextField(
+                  controller: txtpostnom,
+                  decoration: const InputDecoration(labelText: 'Postnom'),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    controller: txtpostnom,
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey.shade400),
-                      ),
-                      labelText: 'Postnom',
-                      labelStyle: const TextStyle(color: Colors.black),
-                    ),
-                  ),
+                TextField(
+                  controller: txtprenom,
+                  decoration: const InputDecoration(labelText: 'Prenom'),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    controller: txtprenom,
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey.shade400),
-                      ),
-                      labelText: 'Prenom',
-                      labelStyle: const TextStyle(color: Colors.black),
-                    ),
-                  ),
+                TextField(
+                  controller: txtemail,
+                  decoration: const InputDecoration(labelText: 'Email'),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: TextField(
-                    controller: txtemail,
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey.shade400),
-                      ),
-                      labelText: 'Email',
-                      labelStyle: const TextStyle(color: Colors.black),
-                    ),
-                  ),
+                TextField(
+                  controller: txtpassword,
+                  decoration: const InputDecoration(labelText: 'Mot de passe'),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(13.0),
-                  child: TextField(
-                    controller: txtpassword,
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey.shade400),
-                      ),
-                      labelText: 'Password',
-                      labelStyle: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(13.0),
-                  child: TextField(
-                    controller: txtrole,
-                    cursorColor: Colors.black,
-                    decoration: InputDecoration(
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey.shade400),
-                      ),
-                      labelText: 'Role',
-                      labelStyle: const TextStyle(color: Colors.black),
-                    ),
-                  ),
+                TextField(
+                  controller: txtrole,
+                  decoration: const InputDecoration(labelText: 'Rôles'),
                 ),
               ],
             ),
@@ -249,8 +430,10 @@ class _Users2State extends State<Users2> {
               child: const Text('Annuler'),
             ),
             TextButton(
-              onPressed: insertData,
-              child: const Text('Enregistrer'),
+              onPressed: () {
+                updateData(item['userId'].toString());
+              },
+              child: const Text('Modifier'),
             ),
           ],
         );
@@ -258,10 +441,57 @@ class _Users2State extends State<Users2> {
     );
   }
 
+  Future<void> updateData(String id) async {
+    final nom = txtnom.text;
+    final postnom = txtpostnom.text;
+    final prenom = txtprenom.text;
+    final email = txtemail.text;
+    final passwords = txtpassword.text;
+    final roles = txtrole.text;
+
+    try {
+      final response = await http.post(
+        Uri.parse("http://192.168.43.148:81/projetSV/updateop.php"),
+        body: {
+          'nom': nom,
+          'postnom': postnom,
+          'prenom': prenom,
+          'email': email,
+          'passwords': passwords,
+          'roles': roles,
+          'userId': id,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Mise à jour réussie'),
+          ),
+        );
+        // Actualiser les données après la mise à jour
+        fetchData();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Erreur lors de la mise à jour'),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de la mise à jour: $e'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
         centerTitle: true,
         title: const Text('Agents Operateurs'),
       ),
@@ -296,23 +526,24 @@ class _Users2State extends State<Users2> {
                         Row(
                           children: [
                             IconButton(
-                              iconSize: 15,
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                // deleteData(context, item['id']);
-                              },
-                            ),
-                            IconButton(
+                              color: Colors.green,
                               iconSize: 15,
                               icon: const Icon(Icons.edit),
                               onPressed: () {
-                                // _showEditDialog(item);
+                                _showEditDialog(item);
+                              },
+                            ),
+                            IconButton(
+                              color: Colors.red,
+                              iconSize: 15,
+                              icon: const Icon(Icons.delete),
+                              onPressed: () {
+                                _confirmDelete(item['userId']);
                               },
                             ),
                           ],
                         ),
                       ),
-                      
                     ],
                   );
                 }),
@@ -323,7 +554,7 @@ class _Users2State extends State<Users2> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showInsertDialog(context),
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

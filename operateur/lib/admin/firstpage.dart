@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:operateur/admin/historique.dart';
 import 'package:operateur/admin/login.dart';
+import 'package:operateur/admin/victime.dart';
 import 'operateur.dart';
 
 class Myfirstpage extends StatefulWidget {
@@ -66,7 +67,7 @@ class _MyfirstpageState extends State<Myfirstpage> {
                 child: Column(
                   children: [
                     Image.asset(
-                      'assets/logo.jpg', // Chemin mis à jour ici
+                      'assets/logo.jpg',
                       width: 300,
                       height: 130,
                     ),
@@ -74,14 +75,24 @@ class _MyfirstpageState extends State<Myfirstpage> {
                 ),
               ),
             ),
+           
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+            ),
             ListTile(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const Users2(),
                 ));
               },
-              leading: const Icon(Icons.support_agent),
+              leading: const Icon(
+                Icons.support_agent,
+                color: Colors.green,
+              ),
               title: const Text('Operateurs'),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
             ),
             ListTile(
               onTap: () {
@@ -89,7 +100,10 @@ class _MyfirstpageState extends State<Myfirstpage> {
                   builder: (context) => const Historique(),
                 ));
               },
-              leading: const Icon(Icons.work_history),
+              leading: const Icon(
+                Icons.work_history_outlined,
+                color: Color.fromARGB(255, 201, 124, 23),
+              ),
               title: const Text('Historiques'),
             ),
             const Padding(
@@ -101,7 +115,10 @@ class _MyfirstpageState extends State<Myfirstpage> {
                   builder: (context) => const LoginAdmin(),
                 ));
               },
-              leading: const Icon(Icons.app_blocking_outlined),
+              leading: const Icon(
+                Icons.login_outlined,
+                color: Colors.red,
+              ),
               title: const Text('Deconnexion'),
             ),
           ],

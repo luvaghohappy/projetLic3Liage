@@ -4,19 +4,35 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:operateur/admin/login.dart';
-import 'package:operateur/mespages/appel.dart'; // Assurez-vous que ce fichier est importé
+import 'package:operateur/admin/victime.dart';
+import 'package:operateur/menu.dart';
+import 'package:operateur/mespages/appel.dart';
+import 'package:audioplayers/audioplayers.dart';
+
+Future<int> fetchRecordCount() async {
+  final url =
+      Uri.parse('http://192.168.43.148:81/projetSV/recordstate.php.php');
+  try {
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      if (data.isNotEmpty) {
+        // Supposons que vous récupérez un seul enregistrement
+        return int.parse(data[0]['record_count']);
+      }
+    }
+  } catch (error) {
+    print('Erreur lors de la récupération des données: $error');
+  }
+  return 0; // Retourner 0 si aucune donnée n'est disponible ou en cas d'erreur
+}
 
 class Homepage extends StatefulWidget {
   final String email;
-  final String profil;
-  final LatLng?
-      initialLocation; // Ajouter une propriété pour les coordonnées initiales
+  final LatLng? initialLocation;
 
-  Homepage(
-      {Key? key,
-      required this.email,
-      required this.profil,
-      this.initialLocation})
+  Homepage({Key? key, required this.email, this.initialLocation})
       : super(key: key);
 
   @override
@@ -24,6 +40,30 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+  int _notificationCount = 0;
+  int _recordCount = 0;
+  final AudioPlayer _audioPlayer = AudioPlayer();
+
+  void _checkNotifications() async {
+    setState(() {
+      _notificationCount = 5;
+    });
+
+    if (_notificationCount > 0) {
+      // Jouer un son
+      await _audioPlayer.play(
+        AssetSource('assets/sirene.mp3'),
+      );
+    }
+  }
+
+  Future<void> _loadRecordCount() async {
+    final count = await fetchRecordCount();
+    setState(() {
+      _recordCount = count;
+    });
+  }
+
   final MapController _mapController = MapController();
   double _currentZoom = 13.0;
   TextEditingController _searchController = TextEditingController();
@@ -39,6 +79,8 @@ class _HomepageState extends State<Homepage> {
         _mapController.move(_markerLocation!, _currentZoom);
       });
     }
+    _checkNotifications();
+    _loadRecordCount();
   }
 
   // Fonction pour rechercher un lieu en RDC
@@ -82,16 +124,15 @@ class _HomepageState extends State<Homepage> {
       appBar: AppBar(
         centerTitle: true,
         title: Row(
-          children: [
-            Image.asset(
-              'assets/logo.jpg',
-              height: 40,
-              width: 60,
+          children: const [
+            CircleAvatar(
+              radius: 25,
+              backgroundImage: AssetImage('assets/logo.jpg'),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 10),
             ),
-            const Text(
+            Text(
               'VIE_SAUVE',
               style: TextStyle(color: Colors.white),
             ),
@@ -101,7 +142,9 @@ class _HomepageState extends State<Homepage> {
         actions: [
           IconButton(
             onPressed: () {
-              // logoutUser(widget.email, context);
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const Menu(),
+              ));
             },
             icon: const Icon(Icons.logout_outlined),
           ),
@@ -115,36 +158,78 @@ class _HomepageState extends State<Homepage> {
               child: Image.asset(
                 'assets/logo.jpg',
                 height: 100,
-                width: 180,
+                width: 250,
               ),
             ),
             const Padding(
-              padding: EdgeInsets.only(top: 20),
+              padding: EdgeInsets.only(top: 10),
             ),
             ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Accueil'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            const Padding(
-              padding: EdgeInsets.only(top: 20),
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Signaux de detresse'),
+              leading: const Icon(
+                Icons.location_pin,
+                color: Color.fromARGB(255, 190, 117, 20),
+              ),
+              title: const Text('Signaux de détresse'),
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => const Urgences(),
                 ));
               },
+              trailing: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.notifications_active),
+                  if (_recordCount > 0)
+                    Positioned(
+                      right: 0,
+                      top: -5,
+                      child: Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 20,
+                          minHeight: 20,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$_recordCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
             const Padding(
-              padding: EdgeInsets.only(top: 20),
+              padding: EdgeInsets.only(top: 10),
             ),
             ListTile(
-              leading: const Icon(Icons.info),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const Utilisateurs(),
+                ));
+              },
+              leading: const Icon(
+                Icons.person_2_outlined,
+                color: Colors.yellowAccent,
+              ),
+              title: const Text('Utilisateurs'),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 10),
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.support_agent_outlined,
+                color: Colors.blue,
+              ),
               title: const Text('Agent'),
               onTap: () {
                 Navigator.pop(context);
@@ -153,8 +238,12 @@ class _HomepageState extends State<Homepage> {
             const Padding(
               padding: EdgeInsets.only(top: 200),
             ),
+            const Divider(),
             ListTile(
-              leading: const Icon(Icons.info),
+              leading: const Icon(
+                Icons.admin_panel_settings,
+                color: Colors.red,
+              ),
               title: const Text('Admin x'),
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
@@ -180,7 +269,7 @@ class _HomepageState extends State<Homepage> {
               TileLayer(
                 urlTemplate:
                     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: ['a', 'b', 'c'],
+                subdomains: const ['a', 'b', 'c'],
                 userAgentPackageName: 'com.example.app',
               ),
               if (_markerLocation != null)

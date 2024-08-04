@@ -14,8 +14,14 @@ class LoginAdmin extends StatefulWidget {
 class _LoginAdminState extends State<LoginAdmin> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  int _attempts = 0; // Variable pour suivre les tentatives
+  bool _fieldsDisabled =
+      false; // Variable pour savoir si les champs sont désactivés
 
+  // Fonction pour gérer la connexion
   Future<void> loginUser() async {
+    if (_fieldsDisabled) return; // Ne rien faire si les champs sont désactivés
+
     final url = 'http://192.168.43.148:81/projetSV/selectAdmin.php';
     final response = await http.post(
       Uri.parse(url),
@@ -32,8 +38,17 @@ class _LoginAdminState extends State<LoginAdmin> {
           builder: (context) => const Myfirstpage(),
         ));
       } else {
-        _showErrorDialog(
-            context, 'Identifiants incorrects. Veuillez réessayer.');
+        _attempts++;
+        if (_attempts >= 3) {
+          setState(() {
+            _fieldsDisabled = true; // Désactiver les champs après 3 tentatives
+          });
+          _showErrorDialog(context,
+              'Vous avez fait plusieurs tentatives infructueuses. Accès refusé.');
+        } else {
+          _showErrorDialog(
+              context, 'Identifiants incorrects. Veuillez réessayer.');
+        }
       }
     } else {
       _showErrorDialog(
@@ -68,7 +83,7 @@ class _LoginAdminState extends State<LoginAdmin> {
           height: h * 0.7,
           width: 750,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20)
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Card(
             child: SingleChildScrollView(
@@ -85,22 +100,30 @@ class _LoginAdminState extends State<LoginAdmin> {
                       padding: const EdgeInsets.all(18.0),
                       child: TextField(
                         controller: emailController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Email',
                           border: OutlineInputBorder(),
+                          errorText: _attempts >= 3
+                              ? 'Tentatives multiples échouées'
+                              : null,
                         ),
                         keyboardType: TextInputType.emailAddress,
+                        enabled: !_fieldsDisabled,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(18.0),
                       child: TextField(
                         controller: passwordController,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Mot de passe',
                           border: OutlineInputBorder(),
+                          errorText: _attempts >= 3
+                              ? 'Tentatives multiples échouées'
+                              : null,
                         ),
                         obscureText: true,
+                        enabled: !_fieldsDisabled,
                       ),
                     ),
                     const SizedBox(height: 20),

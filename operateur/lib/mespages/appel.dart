@@ -118,7 +118,7 @@ class _UrgencesState extends State<Urgences> {
           MaterialPageRoute(
             builder: (context) => Homepage(
               email: '', // Passer les paramètres nécessaires
-              profil: service,
+              // profil: service,
               initialLocation:
                   LatLng(lat, lon), // Passer les coordonnées initiales
             ),
@@ -153,11 +153,9 @@ class _UrgencesState extends State<Urgences> {
                   DataColumn(label: Text('Prenom')),
                   DataColumn(label: Text('Sexe')),
                   DataColumn(label: Text('Locations')),
-                  DataColumn(label: Text('Created_at')),
+                  DataColumn(label: Text('Date_Heure')),
                   DataColumn(label: Text('Services')),
-                  DataColumn(
-                      label: Text(
-                          'Statut')), // Nouvelle colonne pour les cases à cocher
+                  DataColumn(label: Text('Etat')),
                 ],
                 rows: List.generate(items.length, (index) {
                   final item = items[index];

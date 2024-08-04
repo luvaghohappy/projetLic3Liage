@@ -22,7 +22,13 @@ class _MenuState extends State<Menu> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
+  int _attempts = 0; // Variable pour suivre les tentatives
+  bool _fieldsDisabled =
+      false; // Variable pour savoir si les champs sont désactivés
+
   Future<void> loginUser() async {
+    if (_fieldsDisabled) return; // Ne rien faire si les champs sont désactivés
+
     final url = 'http://192.168.43.148:81/projetSV/selectUser.php';
     final response = await http.post(
       Uri.parse(url),
@@ -35,16 +41,24 @@ class _MenuState extends State<Menu> {
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
       if (responseData['success']) {
-        // Si la connexion est réussie, naviguez vers la page Homepage en passant l'email et le profil de l'utilisateur
+        // Navigate to Homepage with just the email
         Navigator.of(context).pushReplacement(MaterialPageRoute(
           builder: (context) => Homepage(
             email: emailController.text,
-            profil: responseData['profil'],
           ),
         ));
       } else {
-        _showErrorDialog(
-            context, 'Identifiants incorrects. Veuillez réessayer.');
+        _attempts++;
+        if (_attempts >= 3) {
+          setState(() {
+            _fieldsDisabled = true; // Désactiver les champs après 3 tentatives
+          });
+          _showErrorDialog(context,
+              'Vous avez fait plusieurs tentatives infructueuses. Accès refusé.');
+        } else {
+          _showErrorDialog(
+              context, 'Identifiants incorrects. Veuillez réessayer.');
+        }
       }
     } else {
       _showErrorDialog(
@@ -126,7 +140,7 @@ class _MenuState extends State<Menu> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
-                          "Operateur d'urgence",
+                          "Opérateur d'urgence",
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.red,
@@ -150,7 +164,11 @@ class _MenuState extends State<Menu> {
                                 style: TextStyle(color: Colors.black),
                               ),
                               hintText: 'Votre email',
+                              errorText: _attempts >= 3
+                                  ? 'Tentatives multiples échouées'
+                                  : null,
                             ),
+                            enabled: !_fieldsDisabled,
                           ),
                         ),
                         Padding(
@@ -168,10 +186,10 @@ class _MenuState extends State<Menu> {
                                     BorderSide(color: Colors.grey.shade800),
                               ),
                               label: const Text(
-                                'Password',
+                                'Mot de passe',
                                 style: TextStyle(color: Colors.black),
                               ),
-                              hintText: 'Votre password',
+                              hintText: 'Votre mot de passe',
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscureText
@@ -184,7 +202,11 @@ class _MenuState extends State<Menu> {
                                   });
                                 },
                               ),
+                              errorText: _attempts >= 3
+                                  ? 'Tentatives multiples échouées'
+                                  : null,
                             ),
+                            enabled: !_fieldsDisabled,
                           ),
                         ),
                         Padding(
