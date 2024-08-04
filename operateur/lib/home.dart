@@ -1,62 +1,77 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:operateur/admin/login.dart';
+import 'package:operateur/mespages/appel.dart'; // Assurez-vous que ce fichier est importé
 
-class Homepage extends StatelessWidget {
+class Homepage extends StatefulWidget {
   final String email;
   final String profil;
+  final LatLng?
+      initialLocation; // Ajouter une propriété pour les coordonnées initiales
 
-  Homepage({Key? key, required this.email, required this.profil})
+  Homepage(
+      {Key? key,
+      required this.email,
+      required this.profil,
+      this.initialLocation})
       : super(key: key);
 
-  Future<void> logoutUser(String email, BuildContext context) async {
-    final url = 'http://192.168.43.148:81/projetSV/selectUser.php';
-    final response = await http.post(
-      Uri.parse(url),
-      body: {
-        'email': email,
-      },
-    );
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
 
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      if (responseData['success']) {
-        Navigator.pop(context);
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Erreur'),
-              content: Text(responseData['message']),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      }
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Erreur'),
-            content: const Text(
-                'Erreur de connexion. Veuillez réessayer plus tard.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
+class _HomepageState extends State<Homepage> {
+  final MapController _mapController = MapController();
+  double _currentZoom = 13.0;
+  TextEditingController _searchController = TextEditingController();
+  LatLng? _markerLocation; // Variable pour stocker l'emplacement du marqueur
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialLocation != null) {
+      _markerLocation = widget.initialLocation;
+      // Déplacer la carte à l'initialisation
+      Future.microtask(() {
+        _mapController.move(_markerLocation!, _currentZoom);
+      });
+    }
+  }
+
+  // Fonction pour rechercher un lieu en RDC
+  Future<void> _searchLocation(String query) async {
+    final url = Uri.parse(
+        'https://nominatim.openstreetmap.org/search?q=$query,+RDC&format=json&limit=1');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List results = json.decode(response.body);
+        if (results.isNotEmpty) {
+          final LatLng location = LatLng(
+            double.parse(results[0]['lat']),
+            double.parse(results[0]['lon']),
           );
-        },
+
+          // Déplacer la carte à la nouvelle localisation
+          setState(() {
+            _markerLocation = location;
+          });
+          Future.microtask(() {
+            _mapController.move(location, _currentZoom);
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Lieu non trouvé.')),
+          );
+        }
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur de requête: $error')),
       );
     }
   }
@@ -65,191 +80,189 @@ class Homepage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          'Welcome $email',
-          style: const TextStyle(color: Colors.black),
+        centerTitle: true,
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/logo.jpg',
+              height: 40,
+              width: 60,
+            ),
+            const Padding(
+              padding: EdgeInsets.only(left: 10),
+            ),
+            const Text(
+              'VIE_SAUVE',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
         ),
+        backgroundColor: Colors.black,
         actions: [
           IconButton(
-            color: Colors.black,
-            icon: const Icon(Icons.logout),
-            onPressed: () => logoutUser(email, context),
+            onPressed: () {
+              // logoutUser(widget.email, context);
+            },
+            icon: const Icon(Icons.logout_outlined),
           ),
         ],
       ),
-      body: kIsWeb
-          ? const HereMapsWebView()
-          : const Center(
-              child: Text('Map not supported on this platform'),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              child: Image.asset(
+                'assets/logo.jpg',
+                height: 100,
+                width: 180,
+              ),
             ),
-    );
-  }
-}
-
-class HereMapsWebView extends StatefulWidget {
-  const HereMapsWebView({Key? key}) : super(key: key);
-
-  @override
-  _HereMapsWebViewState createState() => _HereMapsWebViewState();
-}
-
-class _HereMapsWebViewState extends State<HereMapsWebView> {
-  InAppWebViewController? _webViewController;
-
-  final String initialHtml = '''
-    <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Operateur App</title>
-  <link rel="preload" href="https://js.api.here.com/v3/3.1/styles/fonts/FiraGO-Map.woff" as="font" type="font/woff" crossorigin="anonymous">
-  <link rel="preload" href="https://js.api.here.com/v3/3.1/styles/fonts/FiraGO-Italic.woff" as="font" type="font/woff" crossorigin="anonymous">
-  <style>
-    #mapContainer {
-      width: 100vw;
-      height: 100vh;
-      margin: 0;
-      padding: 0;
-      display: flex; 
-    }
-    #searchBar {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      z-index: 1000;
-      background: white;
-      padding: 10px;
-      border-radius: 5px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      display: flex; 
-    }
-    #searchInput {
-      width: 300px;
-      padding: 5px;
-    }
-    #searchButton {
-      padding: 5px;
-    }
-    #results {
-      position: absolute;
-      top: 50px;
-      right: 10px;
-      background: white;
-      z-index: 1000;
-      padding: 10px;
-      border-radius: 5px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      display: none; /* Masquer les résultats de recherche par défaut */
-    }
-  </style>
-  <script src="https://js.api.here.com/v7/mapsjs.bundle.js"></script>
-  <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
-  <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
-  <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
-  <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
-  <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css"/>
-  <script>
-    var map;
-
-    function initMap() {
-      var platform = new H.service.Platform({
-        'apikey': '6nIGuVmqqMwOppHrpBSBf6U_muWT0r2bNBbONkEBilM',
-        'lang': 'fr-FR'
-      });
-
-      var defaultLayers = platform.createDefaultLayers();
-      map = new H.Map(
-        document.getElementById('mapContainer'),
-        defaultLayers.vector.normal.map,
-        {
-          zoom: 6,
-          center: { lat: -2.87, lng: 23.65 }
-        }
-      );
-
-      var mapEvents = new H.mapevents.MapEvents(map);
-      var behavior = new H.mapevents.Behavior(mapEvents);
-      var ui = H.ui.UI.createDefault(map, defaultLayers);
-
-      document.getElementById('searchButton').onclick = function() {
-        var query = document.getElementById('searchInput').value;
-        searchLocation(platform, query, map);
-      };
-
-      // Afficher les éléments de la carte après leur initialisation
-      document.getElementById('mapContainer').style.display = 'block';
-      document.getElementById('searchBar').style.display = 'block';
-      document.getElementById('results').style.display = 'block';
-    }
-
-    function searchLocation(platform, query, map) {
-      var geocodingParams = {
-        q: query,
-        in: 'countryCode:COD', // Limiter la recherche à la RDC
-      };
-
-      var geocoder = platform.getSearchService();
-      geocoder.geocode(geocodingParams, (result) => {
-        if (result.items.length > 0) {
-          var resultsHtml = '<ul>';
-          result.items.forEach((item) => {
-            resultsHtml += '<li><a href="#" onclick="selectLocation(' + item.position.lat + ',' + item.position.lng + '); return false;">' + item.address.label + '</a></li>';
-          });
-          resultsHtml += '</ul>';
-          document.getElementById('results').innerHTML = resultsHtml;
-        } else {
-          alert('Location not found!');
-        }
-      }, (error) => {
-        alert('Geocode error: ' + error.message);
-        console.error('Geocode error:', error);
-      });
-    }
-
-    function selectLocation(lat, lng) {
-      var position = { lat: lat, lng: lng };
-      map.setCenter(position);
-      map.setZoom(14);
-      var marker = new H.map.Marker(position);
-      map.addObject(marker);
-    }
-  </script>
-</head>
-<body>
-  <div id="searchBar">
-    <input type="text" id="searchInput" placeholder="Rechercher un endroit...">
-    <button id="searchButton">Rechercher</button>
-  </div>
-  <div id="results"></div>
-  <div id="mapContainer"></div>
-  <script src="main.dart.js" type="application/javascript"></script>
-</body>
-</html>
-  ''';
-
-  @override
-  Widget build(BuildContext context) {
-    return InAppWebView(
-      initialData: InAppWebViewInitialData(
-        data: initialHtml,
-        baseUrl: WebUri('about:blank'),
-        encoding: 'utf-8',
-        mimeType: 'text/html',
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Accueil'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Signaux de detresse'),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const Urgences(),
+                ));
+              },
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+            ),
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('Agent'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 200),
+            ),
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('Admin x'),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const LoginAdmin(),
+                ));
+              },
+            ),
+            const Divider(),
+          ],
+        ),
       ),
-      onLoadStart: (controller, url) {
-        setState(() {
-          _webViewController = controller;
-        });
-      },
-      onLoadStop: (controller, url) async {
-        await controller.evaluateJavascript(source: '''
-          if (typeof initMap === 'function') {
-            initMap();
-          }
-        ''');
-        setState(() {});
-      },
+      body: Stack(
+        children: [
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              center: _markerLocation ??
+                  LatLng(-4.4419,
+                      15.2663), // Utiliser l'emplacement du marqueur si disponible
+              zoom: _currentZoom,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate:
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                subdomains: ['a', 'b', 'c'],
+                userAgentPackageName: 'com.example.app',
+              ),
+              if (_markerLocation != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: _markerLocation!,
+                      builder: (context) => Container(
+                        child: const Icon(
+                          Icons.location_on,
+                          color: Colors.red,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          Positioned(
+            top: 20,
+            right: 20,
+            child: Container(
+              width: 350,
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Rechercher...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  suffixIcon: const Icon(
+                    Icons.search,
+                    size: 18,
+                    color: Colors.black,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                ),
+                onSubmitted: (value) {
+                  if (value.isNotEmpty) {
+                    _searchLocation(value);
+                  }
+                },
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 20,
+            right: 10,
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      _currentZoom++;
+                      Future.microtask(() {
+                        _mapController.move(
+                            _mapController.center, _currentZoom);
+                      });
+                    });
+                  },
+                  child: const Icon(Icons.zoom_in),
+                ),
+                const SizedBox(height: 10),
+                FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      _currentZoom--;
+                      Future.microtask(() {
+                        _mapController.move(
+                            _mapController.center, _currentZoom);
+                      });
+                    });
+                  },
+                  child: const Icon(Icons.zoom_out),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

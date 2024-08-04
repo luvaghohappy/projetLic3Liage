@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
     $password = $_POST['passwords'];
 
     // Requête SQL pour vérifier les informations d'identification dans la table "users"
-    $query = "SELECT passwords, profil, roles FROM users WHERE email = ?";
+    $query = "SELECT passwords, roles FROM users WHERE email = ?";
     $statement = mysqli_prepare($connect, $query); 
     if ($statement) {
         mysqli_stmt_bind_param($statement, 's', $email);
@@ -20,21 +20,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email']) && isset($_P
 
         // Vérifier si la requête s'est bien déroulée
         if (mysqli_stmt_num_rows($statement) > 0) {
-            // Récupérer le mot de passe haché, le profil et le rôle de l'utilisateur
-            mysqli_stmt_bind_result($statement, $hashed_password, $profile_blob, $roles);
+            // Récupérer le mot de passe haché et le rôle de l'utilisateur
+            mysqli_stmt_bind_result($statement, $hashed_password, $roles);
             mysqli_stmt_fetch($statement);
 
             // Vérifier si le mot de passe correspond
             if (password_verify($password, $hashed_password)) {
                 // Vérifier le rôle de l'utilisateur
                 if ($roles == "admin") {
-                    // Convertir le BLOB en base64
-                    $profile_base64 = base64_encode($profile_blob);
-
                     // Utilisateur authentifié avec succès
                     $response['success'] = true;
                     $response['message'] = "Connexion réussie.";
-                    $response['profil'] = $profile_base64; // Envoyer le profil de l'utilisateur sous forme de base64
+                    $response['roles'] = $roles; // Envoyer le rôle de l'utilisateur
                 } else {
                     // Rôle non autorisé
                     $response['success'] = false;

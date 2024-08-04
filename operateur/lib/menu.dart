@@ -82,8 +82,8 @@ class _MenuState extends State<Menu> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    Image.network(
-                      "https://th.bing.com/th/id/R.4b5a50c7c671647b6f31c9f5b567b602?rik=WvtbF0YEnvRQGg&riu=http%3a%2f%2fwww.pngall.com%2fwp-content%2fuploads%2f5%2fMap-PNG-File.png&ehk=69hd%2fVR7eKRdDHEAHNQyja418yWjL8dL%2bTen%2bqBjTpA%3d&risl=1&pid=ImgRaw&r=0",
+                    Image.asset(
+                      "assets/photo.png",
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height,
                       fit: BoxFit.cover,

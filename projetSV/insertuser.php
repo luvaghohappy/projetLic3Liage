@@ -1,49 +1,56 @@
 <?php
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: *");
-header("Access-Control-Allow-Methods: GET, POST");
-
 include('conn.php');
 
-// Récupération des données du formulaire, en les protégeant contre les attaques XSS
+// Récupération et échappement des valeurs POST
+$nom = htmlspecialchars($_POST["nom"]);
+$postnom = htmlspecialchars($_POST["postnom"]);
+$prenom = htmlspecialchars($_POST["prenom"]);
 $email = htmlspecialchars($_POST["email"]);
 $password = htmlspecialchars($_POST["passwords"]);
 $role = htmlspecialchars($_POST["roles"]);
 
+// Validation des champs requis
+if (empty($nom) || empty($postnom) || empty($prenom) || empty($email) || empty($password) || empty($role)) {
+    echo json_encode(array("status" => "failed", "error" => "All fields are required."));
+    exit;
+}
+
 // Hash du mot de passe
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-// Vérification s'il y a une image envoyée
-if(isset($_FILES['profil'])) {
-    // Récupération des données de l'image
-    $image = $_FILES['profil'];
-    
-    // Nom temporaire de l'image
-    $tmpName = $image['tmp_name'];
-    
-    // Lecture des données binaires de l'image
-    $imageData = file_get_contents($tmpName);
-    
-    // Encodage des données binaires de l'image en base64
-    $base64Image = base64_encode($imageData);
-    
-    // Requête préparée SQL pour insérer les données dans la table 'users'
-    $sql = "INSERT INTO users (email, passwords, roles, profil) VALUES (?, ?, ?, ?)";
-    
-    // Préparation de la requête
-    $stmt = mysqli_prepare($connect, $sql);
-    
-    // Liaison des paramètres
-    mysqli_stmt_bind_param($stmt, "ssss", $email, $hashedPassword, $role, $base64Image);
-    
-    // Exécution de la requête préparée
-    if(mysqli_stmt_execute($stmt)) {
-        echo json_encode("success");
+$upload_dir = "uploads/"; // Chemin vers le dossier d'upload
+
+// Créer le dossier d'upload si ce n'est pas déjà fait
+if (!file_exists($upload_dir)) {
+    mkdir($upload_dir, 0777, true);
+}
+
+$target_file = $upload_dir . basename($_FILES["profil"]["name"]);
+$imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+// Vérification que le fichier est une image
+$check = getimagesize($_FILES["profil"]["tmp_name"]);
+if($check !== false) {
+    if (move_uploaded_file($_FILES["profil"]["tmp_name"], $target_file)) {
+        // Préparation et exécution de la requête SQL
+        try {
+            $stmt = $connect->prepare("INSERT INTO users (nom, postnom, prenom, email, passwords, roles, profil) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssss", $nom, $postnom, $prenom, $email, $hashedPassword, $role, $target_file);
+            
+            $stmt->execute();
+            echo json_encode(array("status" => "success", "image_path" => $target_file));
+        } catch (Exception $e) {
+            echo json_encode(array("status" => "failed", "error" => $e->getMessage()));
+        }
     } else {
-        echo json_encode("failed");
+        echo json_encode(array("status" => "failed", "error" => "Sorry, there was an error uploading your file."));
     }
 } else {
-    // Si aucune image n'est envoyée, renvoyer une réponse d'erreur
-    echo json_encode("Aucune image envoyée");
+    echo json_encode(array("status" => "failed", "error" => "File is not an image."));
 }
+
+$connect->close();
 ?>
