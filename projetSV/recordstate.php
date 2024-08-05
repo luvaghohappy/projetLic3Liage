@@ -5,8 +5,8 @@ header("Access-Control-Allow-Headers: *");
 // Inclusion du fichier connect.php qui contient la connexion à la base de données
 include('conn.php');
 
-// Requête SQL pour sélectionner toutes les lignes de la table 'user', y compris l'userId
-$rqt = "SELECT userId, nom, postnom, prenom, email, passwords, roles FROM users ORDER BY userId desc";
+// Requête SQL pour sélectionner toutes les lignes de la table 'user'
+$rqt = "SELECT record_count FROM states ORDER BY id desc";
 
 // Exécution de la requête SQL
 $rqt2 = mysqli_query($connect, $rqt) OR die("Erreur d'exécution de la requête : " . mysqli_error($connect));

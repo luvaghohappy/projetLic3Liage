@@ -4,7 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
-
 import 'package:vie_sauve/live/operateur.dart';
 
 class SOS extends StatefulWidget {

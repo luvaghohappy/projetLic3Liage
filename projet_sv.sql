@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : dim. 04 août 2024 à 15:17
+-- Généré le : lun. 05 août 2024 à 22:44
 -- Version du serveur : 10.4.28-MariaDB
 -- Version de PHP : 8.0.28
 
@@ -42,9 +42,10 @@ CREATE TABLE `ambulance` (
 --
 
 INSERT INTO `ambulance` (`id`, `nom`, `postnom`, `prenom`, `sexe`, `locations`, `created_at`) VALUES
-(1, 'happy ', 'luvagho ', 'furaha ', 'Féminin', 0x000000000101000000a758da4e004afabf9dae38e6863e3d40, '2024-08-03 23:27:30'),
-(2, 'happy ', 'luvagho ', 'furaha ', 'Féminin', 0x0000000001010000009dae38e6863e3d40a758da4e004afabf, '2024-08-03 23:27:30'),
-(3, 'happy ', 'luvagho ', 'furaha ', 'Féminin', 0x000000000101000000d3cdb4b39e3e3d409871aebc3f59fabf, '2024-08-03 23:27:30');
+(1, 'happy ', 'luvagho ', 'furaha ', 'Féminin', 0x000000000101000000138dff4cce3e3d40fd99e6c2ed55fabf, '2024-08-04 17:47:15'),
+(2, 'moise', 'MUHINDO ', 'furaha ', 'Féminin', 0x000000000101000000890f47b2a2393d40a7a32df87e94fabf, '2024-08-05 13:32:55'),
+(3, 'moise', 'MUHINDO ', 'furaha ', 'Féminin', 0x0000000001010000001a80b2ce9d393d40d29ad5f14e94fabf, '2024-08-05 15:59:25'),
+(4, 'moise', 'MUHINDO ', 'furaha ', 'Féminin', 0x0000000001010000001a80b2ce9d393d40d29ad5f14e94fabf, '2024-08-05 15:59:26');
 
 --
 -- Déclencheurs `ambulance`
@@ -146,7 +147,60 @@ INSERT INTO `historique_travail` (`id`, `Email`, `Heure_Entree`, `Heure_Sortie`)
 (25, 'happy@gmail.com', '2024-08-04 02:13:15', 0),
 (26, 'happy@gmail.com', '2024-08-04 02:46:24', 0),
 (27, 'happy@gmail.com', '2024-08-04 05:14:12', 0),
-(28, 'happy@gmail.com', '2024-08-04 05:25:41', 0);
+(28, 'happy@gmail.com', '2024-08-04 05:25:41', 0),
+(29, 'happy@gmail.com', '2024-08-04 15:19:55', 0),
+(30, 'jean@gmail.com', '2024-08-04 15:25:26', 0),
+(31, 'happy@gmail.com', '2024-08-04 15:29:44', 0),
+(32, 'happy@gmail.com', '2024-08-04 15:33:22', 0),
+(33, 'happy@gmail.com', '2024-08-04 15:36:04', 0),
+(34, 'happy@gmail.com', '2024-08-04 15:41:44', 0),
+(35, 'happy@gmail.com', '2024-08-04 15:50:28', 0),
+(36, 'happy@gmail.com', '2024-08-04 15:55:54', 0),
+(37, 'happy@gmail.com', '2024-08-04 16:07:21', 0),
+(38, 'happy@gmail.com', '2024-08-04 16:11:16', 0),
+(39, 'happy@gmail.com', '2024-08-04 16:18:14', 0),
+(40, 'happy@gmail.com', '2024-08-04 16:22:35', 0),
+(41, 'happy@gmail.com', '2024-08-04 16:50:20', 0),
+(42, 'happy@gmail.com', '2024-08-04 16:52:18', 0),
+(43, 'happy@gmail.com', '2024-08-04 16:53:31', 0),
+(44, 'happy@gmail.com', '2024-08-04 18:14:23', 0),
+(45, 'happy@gmail.com', '2024-08-04 18:23:24', 0),
+(46, 'happy@gmail.com', '2024-08-04 18:32:32', 0),
+(47, 'happy@gmail.com', '2024-08-04 18:51:13', 0),
+(48, 'happy@gmail.com', '2024-08-04 19:00:07', 0),
+(49, 'happy@gmail.com', '2024-08-04 19:02:43', 0),
+(50, 'happy@gmail.com', '2024-08-04 19:04:38', 0),
+(51, 'happy@gmail.com', '2024-08-04 19:09:46', 0),
+(52, 'happy@gmail.com', '2024-08-04 19:12:58', 0),
+(53, 'happy@gmail.com', '2024-08-04 19:18:02', 0),
+(54, 'happy@gmail.com', '2024-08-04 19:20:46', 0),
+(55, 'happy@gmail.com', '2024-08-05 12:55:28', 0),
+(56, 'happy@gmail.com', '2024-08-05 13:15:02', 0),
+(57, 'happy@gmail.com', '2024-08-05 13:34:28', 0),
+(58, 'happy@gmail.com', '2024-08-05 15:22:40', 0),
+(59, 'happy@gmail.com', '2024-08-05 15:55:21', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `numero_urgence`
+--
+
+CREATE TABLE `numero_urgence` (
+  `id` int(11) NOT NULL,
+  `nom` varchar(100) NOT NULL,
+  `postnom` varchar(100) NOT NULL,
+  `prenom` varchar(100) NOT NULL,
+  `numero1` int(20) NOT NULL,
+  `numero2` int(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `numero_urgence`
+--
+
+INSERT INTO `numero_urgence` (`id`, `nom`, `postnom`, `prenom`, `numero1`, `numero2`) VALUES
+(1, 'moise', 'MUHINDO ', 'furaha ', 999582152, 842407351);
 
 -- --------------------------------------------------------
 
@@ -192,8 +246,9 @@ CREATE TABLE `police` (
 --
 
 INSERT INTO `police` (`id`, `nom`, `postnom`, `prenom`, `sexe`, `locations`, `created_at`) VALUES
-(1, 'happy ', 'luvagho ', 'furaha ', 'Féminin', 0x000000000101000000c2bb010b0551fabf6592ec6c233f3d40, '2024-08-03 23:27:10'),
-(2, 'happy ', 'luvagho ', 'furaha ', 'Féminin', 0x000000000101000000c2bb010b0551fabf6592ec6c233f3d40, '2024-08-03 23:27:10');
+(1, 'happy ', 'luvagho ', 'furaha ', 'Féminin', 0x000000000101000000138dff4cce3e3d40fd99e6c2ed55fabf, '2024-08-04 17:47:25'),
+(2, 'moise', 'MUHINDO ', 'furaha ', 'Féminin', 0x0000000001010000001a80b2ce9d393d40d29ad5f14e94fabf, '2024-08-05 15:59:25'),
+(3, 'moise', 'MUHINDO ', 'furaha ', 'Féminin', 0x000000000101000000e9375d60a0393d4094597336d393fabf, '2024-08-05 16:01:05');
 
 --
 -- Déclencheurs `police`
@@ -242,7 +297,9 @@ CREATE TABLE `pompier` (
 --
 
 INSERT INTO `pompier` (`id`, `nom`, `postnom`, `prenom`, `sexe`, `locations`, `created_at`) VALUES
-(1, 'happy ', 'luvagho ', 'furaha ', 'Féminin', 0x0000000001010000002b31cf4a5a51fabfcf70b9b0243f3d40, '2024-08-03 23:26:50');
+(1, 'happy ', 'luvagho ', 'furaha ', 'Féminin', 0x00000000010100000003441c469c393d4009d51753fa93fabf, '2024-08-05 13:14:22'),
+(2, 'MUHINDO ', 'NDAGHANE ', 'Moise', 'Masculin', 0x00000000010100000029649de051393d40e3c85e4ab88bfabf, '2024-08-05 15:19:38'),
+(3, 'MUHINDO ', 'NDAGHANE ', 'Moise', 'Masculin', 0x00000000010100000029649de051393d40e3c85e4ab88bfabf, '2024-08-05 15:19:52');
 
 --
 -- Déclencheurs `pompier`
@@ -282,6 +339,15 @@ CREATE TABLE `states` (
   `record_count` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Déchargement des données de la table `states`
+--
+
+INSERT INTO `states` (`id`, `table_names`, `record_count`) VALUES
+(1, 'ambulance', 4),
+(2, 'police', 3),
+(3, 'pompier', 3);
+
 -- --------------------------------------------------------
 
 --
@@ -305,9 +371,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`userId`, `nom`, `postnom`, `prenom`, `email`, `passwords`, `roles`, `profil`) VALUES
 (1, 'happy', 'luvagho', 'furaha', 'happy@gmail.com', '$2y$10$/AGj4U8vS2NbfwBSr8zgRuL9dZgTyTXzSen04nnM0cYMRWaFkFrDO', 'admin', 'uploads/image.jpg'),
-(4, 'moise', 'moses', 'musa', 'moise@gmail.com', '$2y$10$/bRKHgsYYBasjpjMNf7Cguz.BKUNGeFQSQZTJAvk6NB8iRWJk2EzO', 'admin', 'uploads/image.jpg'),
-(5, 'martin', 'musa', 'happy', 'martin@gmail.com', '$2y$10$21Wk59xgDrKzFGmK5MkhLuFWKS4r.V/xAe1hzOvuApBWWz.yrTHXK', 'utilisateur', 'uploads/image.jpg'),
-(6, 'jaen', 'martin', 'papy', 'jean@gmail.com', '$2y$10$q8xPirwVMSLXYMG87uszV.Z00fXdK/Vh4hwvpYDXZDyCEM0Iu5Ljy', 'operateur', 'uploads/image.jpg');
+(6, 'jaen', 'martin', 'papy', 'jean@gmail.com', '$2y$10$q8xPirwVMSLXYMG87uszV.Z00fXdK/Vh4hwvpYDXZDyCEM0Iu5Ljy', 'operateur', 'uploads/image.jpg'),
+(7, 'moises', 'musa', 'moses', 'moses@gmail.com', '$2y$10$7g/gUVcjfQtuc8osEqu2kupMOrunwNAb49E4nYX7Qic8oB4SvnOCW', 'operateur', 'uploads/image.jpg');
 
 -- --------------------------------------------------------
 
@@ -327,7 +392,7 @@ CREATE TABLE `utilisateurs` (
   `nombre_enfant` int(11) DEFAULT NULL,
   `Etat_sanitaire` varchar(255) NOT NULL,
   `allergie` varchar(255) NOT NULL,
-  `Taille` decimal(10,0) NOT NULL,
+  `Taille` float NOT NULL,
   `Poids` float NOT NULL,
   `Numero` varchar(15) NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -340,7 +405,8 @@ CREATE TABLE `utilisateurs` (
 --
 
 INSERT INTO `utilisateurs` (`Userid`, `nom`, `postnom`, `prenom`, `sexe`, `Date_naissance`, `Adresse`, `Etat_civil`, `nombre_enfant`, `Etat_sanitaire`, `allergie`, `Taille`, `Poids`, `Numero`, `email`, `mot_de_passe`, `image_path`) VALUES
-(1, 'happy ', 'luvagho ', 'furaha ', 'Féminin', '2024-08-02', 'majengo ', 'Célibataire', NULL, 'saine ', 'aucune ', 1, 80, '0999582152', 'happyluvagho@gmail.com', '$2y$10$GoxQ1y1M3ydRKpx5nZQ2EeXmLW2FV/s3jkFDmDJR17KV2p/eFBuKK', 'uploads/20240802_164654.jpg');
+(1, 'happy ', 'luvagho ', 'furaha ', 'Féminin', '2024-08-04', 'majengo ', 'Célibataire', NULL, 'saine ', 'aucune ', 2, 90, '0999582152', 'happyluvagho@gmail.com', '$2y$10$kBPzY/sqiWmWDWzZuXcnp.DrLD7HFovOilsPipSCsYgKOGdws1LYW', 'uploads/20240802_113603.jpg'),
+(2, 'MUHINDO ', 'NDAGHANE ', 'Moise', 'Masculin', '2001-05-10', 'Quartier KATOYI ', 'Célibataire', NULL, 'Problème de yeux ', 'Allergie aux poussières ', 1, 64, '0997110903', 'mosesmuhindo099@gmail.com', '$2y$10$tM54fFOOeCUNhpRhnhSq2.kVtIXZR0iJ/aVr2Qg3UuIF1lomrt1Ue', 'uploads/IMG-20240220-WA0039.jpg');
 
 --
 -- Index pour les tables déchargées
@@ -369,6 +435,12 @@ ALTER TABLE `historique_appel`
 -- Index pour la table `historique_travail`
 --
 ALTER TABLE `historique_travail`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `numero_urgence`
+--
+ALTER TABLE `numero_urgence`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -417,7 +489,7 @@ ALTER TABLE `utilisateurs`
 -- AUTO_INCREMENT pour la table `ambulance`
 --
 ALTER TABLE `ambulance`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT pour la table `calls`
@@ -435,7 +507,13 @@ ALTER TABLE `historique_appel`
 -- AUTO_INCREMENT pour la table `historique_travail`
 --
 ALTER TABLE `historique_travail`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
+
+--
+-- AUTO_INCREMENT pour la table `numero_urgence`
+--
+ALTER TABLE `numero_urgence`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT pour la table `operateur`
@@ -447,31 +525,31 @@ ALTER TABLE `operateur`
 -- AUTO_INCREMENT pour la table `police`
 --
 ALTER TABLE `police`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `pompier`
 --
 ALTER TABLE `pompier`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `states`
 --
 ALTER TABLE `states`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `userId` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT pour la table `utilisateurs`
 --
 ALTER TABLE `utilisateurs`
-  MODIFY `Userid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `Userid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

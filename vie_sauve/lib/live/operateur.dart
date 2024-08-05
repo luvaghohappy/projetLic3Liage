@@ -3,6 +3,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Livechat extends StatefulWidget {
   const Livechat({super.key});
@@ -12,142 +14,204 @@ class Livechat extends StatefulWidget {
 }
 
 class _LivechatState extends State<Livechat> {
+  final number = '+243828797626';
+  String? imagePath;
+  String? prenom;
+
   @override
   void initState() {
     super.initState();
-    // requestPermissions();
-    // fetchOpID();
-    fetch();
+    _loadUserData();
   }
 
-  List<Map<String, dynamic>> items = [];
-
-  Future<void> fetch() async {
-    try {
-      final response = await http.get(
-        Uri.parse("http://192.168.43.148:81/projetSV/chargerop.php"),
-      );
-      setState(() {
-        items = List<Map<String, dynamic>>.from(json.decode(response.body));
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to load items'),
-        ),
-      );
-    }
+  Future<void> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prenom = prefs.getString('prenom');
+      imagePath = prefs.getString('image_path');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    //  final imageUrl = imagePath != null
-    //     ? "http://192.168.43.148:81/projetSV/$imagePath"
-    //     : null;
-    // print('Image URL: $imageUrl');
+    final imageUrl = imagePath != null
+        ? "http://192.168.43.148:81/projetSV/$imagePath"
+        : null;
+    print('Image URL: $imageUrl');
     return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text(
+          'VIE_SAUVE',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        leading: const CircleAvatar(
+          radius: 15,
+          backgroundImage: AssetImage('assets/logo.jpg'),
+        ),
+        actions: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.blue,
+                backgroundImage:
+                    imageUrl != null ? NetworkImage(imageUrl) : null,
+                child: imageUrl == null
+                    ? const Icon(Icons.person, size: 20, color: Colors.grey)
+                    : null,
+              ),
+              const Padding(
+                padding: EdgeInsets.only(left: 5),
+              ),
+              Center(
+                child: Text(
+                  prenom ?? '',
+                  style: const TextStyle(color: Colors.black),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Padding(
             padding: EdgeInsets.only(top: 30),
           ),
-          const Padding(
-            padding: EdgeInsets.only(left: 10),
-            child: Text(
-              'Communiquer avec les operateurs',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20),
-            ),
+          const Text(
+            'Communiquez avec les operateurs',
+            style: TextStyle(
+                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
           ),
           const Padding(
-            padding: EdgeInsets.only(top: 20),
+            padding: EdgeInsets.only(top: 120),
           ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                final item = items[index];
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Colors.blue,
-                      backgroundImage: item['image_path'] != null
-                          ? NetworkImage(
-                              "http://192.168.43.148:81/projetSV/${item['image_path']}")
-                          : null,
-                      child: item['image_path'] == null
-                          ? const Icon(Icons.image,
-                              size: 20, color: Colors.grey)
-                          : null,
-                    ),
-                    title: Text(
-                      item['nom'] ?? 'N/A',
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
+          Column(
+            children: [
+              Container(
+                height: 60,
+                width: 250,
+                decoration: BoxDecoration(
+                  color: Colors.orange,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment
+                        .center, // Centrer le contenu de la ligne
+                    children: const [
+                      Icon(
+                        Icons.live_tv_outlined,
+                        size: 30, // Agrandir l'icône
+                        color: Colors.white,
                       ),
-                    ),
-                    subtitle: Text(
-                      item['prenom'] ?? 'N/A',
-                      style: const TextStyle(
-                        color: Colors.black26,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                      Padding(
+                        padding: EdgeInsets.only(left: 10),
                       ),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.green,
-                          radius: 15,
-                          child: IconButton(
+                      Text(
+                        'Lancez live',
+                        style: TextStyle(
                             color: Colors.white,
-                            iconSize: 12,
-                            icon: const Icon(Icons.call),
-                            onPressed: () {
-                              // Handle call action
-                            },
-                          ),
+                            fontSize: 20), // Agrandir le texte
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 20),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  await FlutterPhoneDirectCaller.callNumber(number);
+                },
+                child: Container(
+                  height: 60,
+                  width: 250,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment
+                          .center, // Centrer le contenu de la ligne
+                      children: const [
+                        Icon(
+                          Icons.call,
+                          size: 30, // Agrandir l'icône
+                          color: Colors.white,
                         ),
-                        const SizedBox(width: 10),
-                        CircleAvatar(
-                          backgroundColor: Colors.red,
-                          radius: 15,
-                          child: IconButton(
-                            color: Colors.white,
-                            iconSize: 12,
-                            icon: const Icon(Icons.live_tv),
-                            onPressed: () {
-                              // Handle live stream action
-                            },
-                          ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 10),
                         ),
-                        const SizedBox(width: 10),
-                        CircleAvatar(
-                          backgroundColor: Colors.blue,
-                          radius: 15,
-                          child: IconButton(
-                            color: Colors.white,
-                            iconSize: 12,
-                            icon: const Icon(Icons.chat),
-                            onPressed: () {
-                              // Handle chat action
-                            },
-                          ),
+                        Text(
+                          'Appelez',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20), // Agrandir le texte
                         ),
                       ],
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 20),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  final Uri smsUri = Uri(
+                    scheme: 'sms',
+                    path: number,
+                  );
+                  if (await canLaunchUrl(smsUri)) {
+                    await launchUrl(smsUri);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            'Impossible d\'ouvrir l\'application de messagerie.'),
+                      ),
+                    );
+                  }
+                },
+                child: Container(
+                  height: 60,
+                  width: 250,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment
+                          .center, // Centrer le contenu de la ligne
+                      children: const [
+                        Icon(
+                          Icons.chat,
+                          color: Colors.white,
+                          size: 30, // Agrandir l'icône
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 10),
+                        ),
+                        Text(
+                          'Chat',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20), // Agrandir le texte
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

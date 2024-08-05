@@ -275,6 +275,10 @@ class _MyFormState extends State<MyForm> {
                 const Padding(
                   padding: EdgeInsets.only(top: 20),
                 ),
+                const Text("Veuillez remplir tous les champs avant d'inserer"),
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                ),
                 TextFormField(
                   controller: txtnom,
                   decoration: buildInputDecoration('Nom', 'Entrez votre nom'),
@@ -435,6 +439,14 @@ class _MyFormState extends State<MyForm> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Veuillez entrer votre taille';
+                    } else {
+                      // Convertir la taille en nombre et vérifier qu'elle ne dépasse pas 2.5
+                      final taille = double.tryParse(value);
+                      if (taille == null) {
+                        return 'Veuillez entrer un nombre valide pour la taille';
+                      } else if (taille > 2.5) {
+                        return 'La taille ne doit pas dépasser 2.5';
+                      }
                     }
                     return null;
                   },
@@ -456,9 +468,12 @@ class _MyFormState extends State<MyForm> {
                   controller: txtnumero,
                   decoration: buildInputDecoration('Numéro de téléphone',
                       'Entrez votre numéro de téléphone'),
+                  keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Veuillez entrer votre numéro de téléphone';
+                    } else if (!RegExp(r'^\d{1,15}$').hasMatch(value)) {
+                      return 'Le numéro de téléphone doit contenir entre 1 et 15 chiffres';
                     }
                     return null;
                   },

@@ -39,6 +39,7 @@ dependencies:
   latlong2: ^0.8.0
   fl_chart: ^0.62.0
   audioplayers: ^4.0.1
+  shared_preferences: ^2.0.18
 
 dev_dependencies:
   flutter_test:

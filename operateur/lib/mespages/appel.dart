@@ -1,8 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'package:operateur/home.dart';
 
 class Urgences extends StatefulWidget {
@@ -31,7 +32,10 @@ class _UrgencesState extends State<Urgences> {
       );
       if (response.statusCode == 200) {
         setState(() {
-          items = List<Map<String, dynamic>>.from(json.decode(response.body));
+          // Inverser la liste des éléments pour afficher les plus récents en premier
+          items = List<Map<String, dynamic>>.from(json.decode(response.body))
+              .reversed
+              .toList();
           // Initialiser les états des cases à cocher
           successStatus = Map.fromIterable(
             List.generate(items.length, (index) => index),
@@ -43,6 +47,7 @@ class _UrgencesState extends State<Urgences> {
             key: (item) => item,
             value: (item) => false, // Par défaut, non cochée
           );
+          _loadCheckboxState(); // Charger l'état des cases à cocher
         });
       } else {
         throw Exception('Failed to load data');
@@ -57,6 +62,22 @@ class _UrgencesState extends State<Urgences> {
     }
   }
 
+  Future<void> _saveCheckboxState() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (int i = 0; i < items.length; i++) {
+      await prefs.setBool('success_$i', successStatus[i] ?? false);
+      await prefs.setBool('failure_$i', failureStatus[i] ?? false);
+    }
+  }
+
+  Future<void> _loadCheckboxState() async {
+    final prefs = await SharedPreferences.getInstance();
+    for (int i = 0; i < items.length; i++) {
+      successStatus[i] = prefs.getBool('success_$i') ?? false;
+      failureStatus[i] = prefs.getBool('failure_$i') ?? false;
+    }
+  }
+
   void _onStatusChanged(int index, bool isSuccess) {
     setState(() {
       if (isSuccess) {
@@ -67,6 +88,7 @@ class _UrgencesState extends State<Urgences> {
         failureStatus[index] = true;
       }
     });
+    _saveCheckboxState(); // Enregistrer l'état après chaque changement
   }
 
   DataCell _buildStatusCell(int index) {

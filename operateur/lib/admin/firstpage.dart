@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:operateur/admin/historique.dart';
 import 'package:operateur/admin/login.dart';
 import 'package:operateur/admin/victime.dart';
+import 'package:operateur/menu.dart';
 import 'operateur.dart';
 
 class Myfirstpage extends StatefulWidget {
@@ -112,7 +113,7 @@ class _MyfirstpageState extends State<Myfirstpage> {
             ListTile(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const LoginAdmin(),
+                  builder: (context) => const Menu(),
                 ));
               },
               leading: const Icon(
