@@ -295,45 +295,75 @@ class _SettingsState extends State<Settings> {
                   final item = numbers[index];
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      leading: const Icon(Icons.call, size: 12),
-                      title: Text(
-                        item['numero1'] ?? 'N/A',
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.call, size: 12),
+                          title: Text(
+                            item['numero1'] ?? 'N/A',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                color: Colors.green,
+                                iconSize: 20,
+                                icon: const Icon(Icons.edit),
+                                onPressed: () {
+                                  // Handle edit action
+                                },
+                              ),
+                              const SizedBox(width: 10),
+                              IconButton(
+                                color: Colors.red,
+                                iconSize: 20,
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  // Handle delete action
+                                },
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      subtitle: Text(
-                        item['numero2'] ?? 'N/A',
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            color: Colors.green,
-                            iconSize: 20,
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              // Handle edit action
-                            },
+                        ListTile(
+                          leading: const Icon(Icons.call, size: 12),
+                          title: Text(
+                            item['numero2'] ?? 'N/A',
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
                           ),
-                          const SizedBox(width: 10),
-                          IconButton(
-                            color: Colors.red,
-                            iconSize: 20,
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              // Handle delete action
-                            },
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                color: Colors.green,
+                                iconSize: 20,
+                                icon: const Icon(Icons.edit),
+                                onPressed: () {
+                                  // Handle edit action
+                                },
+                              ),
+                              const SizedBox(width: 10),
+                              IconButton(
+                                color: Colors.red,
+                                iconSize: 20,
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  // Handle delete action
+                                },
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   );
                 },

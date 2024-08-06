@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:operateur/mespages/numero.dart';
 
 class Utilisateurs extends StatefulWidget {
   const Utilisateurs({super.key});
@@ -92,6 +93,30 @@ class _UtilisateursState extends State<Utilisateurs> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => const Numero(),
+            ));
+          },
+          child: SizedBox(
+            width: 250,
+            child: Container(
+              height: 50,
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.black),
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              alignment: Alignment.center,
+              child: const Text(
+                "Numéro d'urgences",
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+          ),
+        ),
         title: const Text(
           'Utilisateurs de vie sauve',
           style: TextStyle(color: Colors.black),

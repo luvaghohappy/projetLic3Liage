@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:operateur/admin/historique.dart';
 import 'package:operateur/admin/login.dart';
+import 'package:operateur/admin/rapport.dart';
 import 'package:operateur/admin/victime.dart';
 import 'package:operateur/menu.dart';
 import 'operateur.dart';
@@ -76,7 +77,6 @@ class _MyfirstpageState extends State<Myfirstpage> {
                 ),
               ),
             ),
-           
             const Padding(
               padding: EdgeInsets.only(top: 20),
             ),
@@ -108,7 +108,22 @@ class _MyfirstpageState extends State<Myfirstpage> {
               title: const Text('Historiques'),
             ),
             const Padding(
-              padding: EdgeInsets.only(top: 310),
+              padding: EdgeInsets.only(top: 20),
+            ),
+            ListTile(
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const Rapports(),
+                ));
+              },
+              leading: const Icon(
+                Icons.book,
+                color: Colors.brown,
+              ),
+              title: const Text('Rapports'),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 220),
             ),
             ListTile(
               onTap: () {

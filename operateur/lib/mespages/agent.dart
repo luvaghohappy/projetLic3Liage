@@ -3,30 +3,48 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:operateur/admin/login.dart';
-import 'package:operateur/admin/victime.dart';
-import 'package:operateur/menu.dart';
-import 'package:operateur/mespages/agent.dart';
-import 'package:operateur/mespages/appel.dart';
+import 'package:geolocator/geolocator.dart';
 
-class Homepage extends StatefulWidget {
-  final String email;
-  final LatLng? initialLocation;
-
-  const Homepage({Key? key, required this.email, this.initialLocation})
-      : super(key: key);
+class Agents extends StatefulWidget {
+  const Agents({super.key});
 
   @override
-  State<Homepage> createState() => _HomepageState();
+  State<Agents> createState() => _AgentsState();
 }
 
-class _HomepageState extends State<Homepage> {
-  int _notificationCount = 0;
-  int _recordCount = 0;
+class _AgentsState extends State<Agents> {
   final TextEditingController _searchController = TextEditingController();
   final MapController _mapController = MapController();
   double _currentZoom = 13.0;
-  LatLng? _markerLocation;
+  LatLng? _currentLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+    _listenToLocationChanges();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      _currentLocation = LatLng(position.latitude, position.longitude);
+    });
+    _mapController.move(_currentLocation!, _currentZoom);
+  }
+
+  void _listenToLocationChanges() {
+    Geolocator.getPositionStream(
+            locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.high, distanceFilter: 10))
+        .listen((Position position) {
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+      });
+      _mapController.move(_currentLocation!, _currentZoom);
+    });
+  }
 
   Future<void> _searchLocation(String query) async {
     final url = Uri.parse(
@@ -43,7 +61,7 @@ class _HomepageState extends State<Homepage> {
           );
 
           setState(() {
-            _markerLocation = location;
+            _currentLocation = location;
           });
           Future.microtask(() {
             _mapController.move(location, _currentZoom);
@@ -62,130 +80,22 @@ class _HomepageState extends State<Homepage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.initialLocation != null) {
-      _markerLocation = widget.initialLocation;
-      Future.microtask(() {
-        _mapController.move(_markerLocation!, _currentZoom);
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Row(
-          children: const [
-            CircleAvatar(
-              radius: 25,
-              backgroundImage: AssetImage('assets/logo.jpg'),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 10),
-            ),
-            Text(
-              'VIE_SAUVE',
-              style: TextStyle(color: Colors.white),
-            ),
-          ],
+        title: const Text(
+          'Agent disponible',
+          style: TextStyle(color: Colors.black),
         ),
-        backgroundColor: Colors.black,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const Menu(),
-              ));
-            },
-            icon: const Icon(Icons.logout_outlined),
-          ),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              child: Image.asset(
-                'assets/logo.jpg',
-                height: 100,
-                width: 250,
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(top: 10),
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.location_pin,
-                color: Color.fromARGB(255, 190, 117, 20),
-              ),
-              title: const Text('Signales des détresses'),
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const Urgences(),
-                ));
-              },
-            ),
-            const Padding(
-              padding: EdgeInsets.only(top: 10),
-            ),
-            ListTile(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const Utilisateurs(),
-                ));
-              },
-              leading: const Icon(
-                Icons.person_2_outlined,
-                color: Colors.yellowAccent,
-              ),
-              title: const Text('Utilisateurs'),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(top: 10),
-            ),
-            ListTile(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const Agents(),
-                ));
-              },
-              leading: const Icon(
-                Icons.support_agent_outlined,
-                color: Colors.blue,
-              ),
-              title: const Text('Agent'),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(top: 200),
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(
-                Icons.admin_panel_settings,
-                color: Colors.red,
-              ),
-              title: const Text('Admin x'),
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const LoginAdmin(),
-                ));
-              },
-            ),
-            const Divider(),
-          ],
-        ),
+        backgroundColor: Colors.white,
       ),
       body: Stack(
         children: [
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              center: _markerLocation ?? LatLng(-4.4419, 15.2663),
+              center: _currentLocation ?? LatLng(-4.4419, 15.2663),
               zoom: _currentZoom,
             ),
             children: [
@@ -195,11 +105,11 @@ class _HomepageState extends State<Homepage> {
                 subdomains: const ['a', 'b', 'c'],
                 userAgentPackageName: 'com.example.app',
               ),
-              if (_markerLocation != null)
+              if (_currentLocation != null)
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: _markerLocation!,
+                      point: _currentLocation!,
                       builder: (context) => const Icon(
                         Icons.location_on,
                         color: Colors.red,

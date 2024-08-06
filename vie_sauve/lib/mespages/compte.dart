@@ -56,7 +56,155 @@ class _MonComptePageState extends State<MonComptePage> {
     });
   }
 
- 
+  Future<void> _updateUserInfo() async {
+    if (userId == null) return;
+
+    final response = await http.post(
+      Uri.parse("http://192.168.43.148:81/projetSV/updateuser.php"),
+      body: {
+        'Userid': userId!,
+        'nom': nom!,
+        'postnom': postnom!,
+        'prenom': prenom!,
+        'sexe': sexe!,
+        'Date_naissance': dateNaissance!,
+        'Adresse': adresse!,
+        'Etat_civil': etatCivil!,
+        'nombre_enfant': nombreEnfant!,
+        'Etat_sanitaire': etatSanitaire!,
+        'allergie': allergie!,
+        'Taille': taille!,
+        'Poids': poids!,
+        'Numero': numero!,
+        'email': email!,
+      },
+    );
+
+    final result = json.decode(response.body);
+    if (result['status'] == 'success') {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('nom', nom!);
+      await prefs.setString('postnom', postnom!);
+      await prefs.setString('prenom', prenom!);
+      await prefs.setString('sexe', sexe!);
+      await prefs.setString('Date_naissance', dateNaissance!);
+      await prefs.setString('Adresse', adresse!);
+      await prefs.setString('Etat_civil', etatCivil!);
+      await prefs.setString('nombre_enfant', nombreEnfant!);
+      await prefs.setString('Etat_sanitaire', etatSanitaire!);
+      await prefs.setString('allergie', allergie!);
+      await prefs.setString('Taille', taille!);
+      await prefs.setString('Poids', poids!);
+      await prefs.setString('Numero', numero!);
+      await prefs.setString('email', email!);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Informations mises à jour avec succès'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur lors de la mise à jour : ${result['error']}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  void _showEditDialog() {
+    final TextEditingController nomController =
+        TextEditingController(text: nom);
+    final TextEditingController postnomController =
+        TextEditingController(text: postnom);
+    final TextEditingController prenomController =
+        TextEditingController(text: prenom);
+    final TextEditingController sexeController =
+        TextEditingController(text: sexe);
+    final TextEditingController dateNaissanceController =
+        TextEditingController(text: dateNaissance);
+    final TextEditingController adresseController =
+        TextEditingController(text: adresse);
+    final TextEditingController etatCivilController =
+        TextEditingController(text: etatCivil);
+    final TextEditingController nombreEnfantController =
+        TextEditingController(text: nombreEnfant);
+    final TextEditingController etatSanitaireController =
+        TextEditingController(text: etatSanitaire);
+    final TextEditingController allergieController =
+        TextEditingController(text: allergie);
+    final TextEditingController tailleController =
+        TextEditingController(text: taille);
+    final TextEditingController poidsController =
+        TextEditingController(text: poids);
+    final TextEditingController numeroController =
+        TextEditingController(text: numero);
+    final TextEditingController emailController =
+        TextEditingController(text: email);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Modifier les informations'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildTextField('Nom', nomController),
+                _buildTextField('Postnom', postnomController),
+                _buildTextField('Prénom', prenomController),
+                _buildTextField('Sexe', sexeController),
+                _buildTextField('Date de Naissance', dateNaissanceController),
+                _buildTextField('Adresse', adresseController),
+                _buildTextField('État Civil', etatCivilController),
+                _buildTextField('Nombre d\'enfants', nombreEnfantController),
+                _buildTextField('État Sanitaire', etatSanitaireController),
+                _buildTextField('Allergies', allergieController),
+                _buildTextField('Taille', tailleController),
+                _buildTextField('Poids', poidsController),
+                _buildTextField('Numéro', numeroController),
+                _buildTextField('Email', emailController),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  nom = nomController.text;
+                  postnom = postnomController.text;
+                  prenom = prenomController.text;
+                  sexe = sexeController.text;
+                  dateNaissance = dateNaissanceController.text;
+                  adresse = adresseController.text;
+                  etatCivil = etatCivilController.text;
+                  nombreEnfant = nombreEnfantController.text;
+                  etatSanitaire = etatSanitaireController.text;
+                  allergie = allergieController.text;
+                  taille = tailleController.text;
+                  poids = poidsController.text;
+                  numero = numeroController.text;
+                  email = emailController.text;
+                });
+                Navigator.of(context).pop();
+                _updateUserInfo();
+              },
+              child: const Text('Enregistrer'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget _buildTextField(String label, TextEditingController controller) {
     return Padding(
@@ -70,8 +218,6 @@ class _MonComptePageState extends State<MonComptePage> {
       ),
     );
   }
-
-
 
   Future<void> deleteUserAccount(String id) async {
     final response = await http.post(
@@ -244,8 +390,53 @@ class _MonComptePageState extends State<MonComptePage> {
             const Padding(
               padding: EdgeInsets.only(top: 20),
             ),
+            Text(
+              "Bonjour, ${prenom}! Merci d'utiliser VIE-SAUVE. Assurez-vous que toutes vos informations sont à jour pour bénéficier pleinement de nos services.",
+              style: GoogleFonts.abel(),
+            ),
             const Padding(
-              padding: EdgeInsets.only(top: 10),
+              padding: EdgeInsets.only(top: 20),
+            ),
+            Text(
+              "Pour garantir une assistance optimale en cas d'urgence, n'oubliez pas de vérifier et mettre à jour vos informations régulièrement.",
+              style: GoogleFonts.abel(),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+            ),
+             const Padding(
+              padding: EdgeInsets.only(top: 20),
+            ),
+            Text(
+              "Merci d'être un utilisateur de VIE-SAUVE. Votre sécurité est notre priorité. Nous sommes là pour vous aider à tout moment",
+              style: GoogleFonts.abel(),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 170),
+              child: GestureDetector(
+                onTap: _showEditDialog,
+                child: Container(
+                  height: 40,
+                  width: 150,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black26),
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Modifier Compte',
+                      style: GoogleFonts.poppins(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 20),
             ),
           ],
         ),

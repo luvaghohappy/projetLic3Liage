@@ -62,9 +62,7 @@ class _LivechatState extends State<Livechat> {
                     ? const Icon(Icons.person, size: 20, color: Colors.grey)
                     : null,
               ),
-              const Padding(
-                padding: EdgeInsets.only(left: 5),
-              ),
+              const SizedBox(width: 10),
               Center(
                 child: Text(
                   prenom ?? '',
@@ -75,145 +73,110 @@ class _LivechatState extends State<Livechat> {
           ),
         ],
       ),
-      body: Column(
-      
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 30),
-          ),
-          const Text(
-            'Communiquez avec les operateurs',
-            style: TextStyle(
-                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(top: 120),
-          ),
-          Column(
-            children: [
-              Container(
-                height: 60,
-                width: 250,
-                decoration: BoxDecoration(
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Communiquez avec les operateurs',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20),
+                ),
+                const SizedBox(height: 120),
+                _buildActionButton(
                   color: Colors.orange,
-                  borderRadius: BorderRadius.circular(20),
+                  icon: Icons.live_tv_outlined,
+                  text: 'Lancez un live',
+                  onTap: () {
+                    // Ajouter l'action pour lancer un live
+                  },
                 ),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment
-                        .center, // Centrer le contenu de la ligne
-                    children: const [
-                      Icon(
-                        Icons.live_tv_outlined,
-                        size: 30, // Agrandir l'icône
-                        color: Colors.white,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 10),
-                      ),
-                      Text(
-                        'Lancez live',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20), // Agrandir le texte
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 20),
+                _buildActionButton(
+                  color: Colors.green,
+                  icon: Icons.call,
+                  text: 'Appelez',
+                  onTap: () async {
+                    await FlutterPhoneDirectCaller.callNumber(number);
+                  },
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 20),
-              ),
-              GestureDetector(
-                onTap: () async {
-                  await FlutterPhoneDirectCaller.callNumber(number);
-                },
-                child: Container(
-                  height: 60,
-                  width: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment
-                          .center, // Centrer le contenu de la ligne
-                      children: const [
-                        Icon(
-                          Icons.call,
-                          size: 30, // Agrandir l'icône
-                          color: Colors.white,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 10),
-                        ),
-                        Text(
-                          'Appelez',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20), // Agrandir le texte
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 20),
-              ),
-              GestureDetector(
-                onTap: () async {
-                  final Uri smsUri = Uri(
-                    scheme: 'sms',
-                    path: number,
-                  );
-                  if (await canLaunchUrl(smsUri)) {
-                    await launchUrl(smsUri);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                            'Impossible d\'ouvrir l\'application de messagerie.'),
-                      ),
+                const SizedBox(height: 20),
+                _buildActionButton(
+                  color: Colors.blue,
+                  icon: Icons.chat,
+                  text: 'Chat',
+                  onTap: () async {
+                    final Uri smsUri = Uri(
+                      scheme: 'sms',
+                      path: number,
                     );
-                  }
-                },
-                child: Container(
-                  height: 60,
-                  width: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment
-                          .center, // Centrer le contenu de la ligne
-                      children: const [
-                        Icon(
-                          Icons.chat,
-                          color: Colors.white,
-                          size: 30, // Agrandir l'icône
+                    if (await canLaunchUrl(smsUri)) {
+                      await launchUrl(smsUri);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Impossible d\'ouvrir l\'application de messagerie.'),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 10),
-                        ),
-                        Text(
-                          'Chat',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20), // Agrandir le texte
-                        ),
-                      ],
-                    ),
-                  ),
+                      );
+                    }
+                  },
                 ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required Color color,
+    required IconData icon,
+    required String text,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 60,
+        width: 250,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 30,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                text,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
