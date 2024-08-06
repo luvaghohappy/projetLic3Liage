@@ -10,7 +10,7 @@ $response = array();
 
 function getTableData($tableName) {
     global $connect;
-    $stmt = $connect->prepare("SELECT id, nom, postnom, prenom, sexe, ST_AsText(locations) as locations, created_at FROM $tableName");
+    $stmt = $connect->prepare("SELECT id, nom, postnom, prenom, sexe, ST_AsText(locations) as locations, created_at FROM $tableName ORDER BY id DESC");
     $stmt->execute();
     $data = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     

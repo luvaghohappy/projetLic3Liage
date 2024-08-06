@@ -6,7 +6,7 @@ header("Access-Control-Allow-Headers: *");
 include('conn.php');
 
 // Requête SQL pour sélectionner toutes les lignes de la table 'user'
-$rqt = "SELECT * FROM numero1 , numero2 ORDER BY id desc";
+$rqt = "SELECT * FROM numero_urgence ORDER BY id desc";
 
 // Exécution de la requête SQL
 $rqt2 = mysqli_query($connect, $rqt) OR die("Erreur d'exécution de la requête : " . mysqli_error($connect));
