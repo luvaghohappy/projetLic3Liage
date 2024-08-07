@@ -161,10 +161,12 @@ class _SettingsState extends State<Settings> {
 
       final responseData = json.decode(response.body);
       if (responseData['status'] == 'success') {
+        // Add numbers to the list and save to SharedPreferences
         setState(() {
           numbers.add({'numero1': numero1, 'numero2': numero2});
+          _saveNumbersToSharedPreferences();
         });
-        _saveNumbersToSharedPreferences();
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Numéros ajoutés avec succès'),

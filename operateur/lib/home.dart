@@ -158,7 +158,7 @@ class _HomepageState extends State<Homepage> {
                 Icons.support_agent_outlined,
                 color: Colors.blue,
               ),
-              title: const Text('Agent'),
+              title: const Text('Postes'),
             ),
             const Padding(
               padding: EdgeInsets.only(top: 200),

@@ -18,6 +18,22 @@ class _AgentsState extends State<Agents> {
   double _currentZoom = 13.0;
   LatLng? _currentLocation;
 
+  // Coordonnées des commissariats
+  final List<LatLng> _policeStations = [
+    LatLng(-1.6786818023654613, 29.226495915853643),
+    // LatLng(-1.6696948758578498, 29.231624299511363),
+    LatLng(-1.6350940311215905, 29.1866666082622),
+    LatLng(-1.6679857019556519, 29.231539964930754),
+    LatLng(-1.676565115083692, 29.22656178494312),
+    LatLng(-1.6769080721878513, 29.22630427151146),
+    LatLng(-1.6416101499520641, 29.24209609352054),
+    LatLng(-1.5961380436898025, 29.16845336250647),
+    LatLng(-1.65516578678833, 29.240207818352822),
+    LatLng(-1.6357993666030775, 29.18651293561364),
+    LatLng(-1.635600109056557, 29.21572326589498),
+    LatLng(-1.630020315707573, 29.208900382224126),
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -85,7 +101,7 @@ class _AgentsState extends State<Agents> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          'Agent disponible',
+          'Postes disponibles',
           style: TextStyle(color: Colors.black),
         ),
         backgroundColor: Colors.white,
@@ -104,6 +120,30 @@ class _AgentsState extends State<Agents> {
                     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 subdomains: const ['a', 'b', 'c'],
                 userAgentPackageName: 'com.example.app',
+              ),
+              // Marqueurs pour les commissariats avec des marqueurs verts
+              MarkerLayer(
+                markers: _policeStations.map((position) {
+                  return Marker(
+                    point: position,
+                    builder: (context) => Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.black, width: 1),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.location_on,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
               if (_currentLocation != null)
                 MarkerLayer(

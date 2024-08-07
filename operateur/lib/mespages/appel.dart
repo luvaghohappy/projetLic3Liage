@@ -15,9 +15,8 @@ class Urgences extends StatefulWidget {
 }
 
 class _UrgencesState extends State<Urgences> {
-  Map<int, bool> successStatus =
-      {}; // True: case verte (cochée automatiquement)
-  Map<int, bool> failureStatus = {}; // True: case rouge (état par défaut)
+  Map<int, bool> successStatus = {};
+  Map<int, bool> failureStatus = {};
   List<Map<String, dynamic>> items = [];
   List<Map<String, dynamic>> filteredItems = [];
   final MapController _mapController = MapController();
